@@ -1,13 +1,15 @@
 import { useStore } from '../hooks/useStore';
 import { StatusBadge } from '../components/UI';
-import { formatCurrency, formatTime } from '../utils/format';
+import { formatTime } from '../utils/format';
 import { useNavigate } from 'react-router-dom';
 import { useAccount } from 'wagmi';
-
+import { useUSDCBalance, useEURCBalance, useNativeBalance } from '../hooks/useOnChain';
+import { useRecentTransactions } from '../hooks/useTransactions';
+import { IMAGES } from '../config/images';
 import {
   Send, QrCode, ArrowDownLeft, ArrowUpRight, Users, Globe,
   TrendingUp, Activity, CreditCard, Banknote,
-  Zap, Shield, Smartphone, Building2
+  Zap, Shield, Smartphone, Building2, Wallet, Clock, ExternalLink
 } from 'lucide-react';
 
 const categories = [
@@ -38,86 +40,113 @@ const services = [
   { icon: Send, label: 'Send Money', sub: 'Free, instant', color: 'bg-blue-500', path: '/send' },
   { icon: QrCode, label: 'Receive', sub: 'QR & address', color: 'bg-cyan-500', path: '/receive' },
   { icon: Users, label: 'Split Bill', sub: 'Group expenses', color: 'bg-violet-500', path: '/split' },
-  { icon: Globe, label: 'Remittance', sub: 'Cross-border', color: 'bg-emerald-500', path: '/remit' },
-  { icon: CreditCard, label: 'Pay Bills', sub: 'Utilities', color: 'bg-orange-500', path: '#' },
-  { icon: Banknote, label: 'Quick Loan', sub: 'Up to $10,000', color: 'bg-pink-500', path: '#' },
-  { icon: Smartphone, label: 'Mobile Top-up', sub: '4G/5G Data', color: 'bg-teal-500', path: '#' },
-  { icon: Building2, label: 'Bank Transfer', sub: 'Link accounts', color: 'bg-indigo-500', path: '#' },
-  { icon: Shield, label: 'Insurance', sub: 'Protect assets', color: 'bg-amber-500', path: '#' },
-  { icon: TrendingUp, label: 'Savings', sub: 'Earn yield', color: 'bg-green-500', path: '#' },
-  { icon: Zap, label: 'Nano Payments', sub: 'Micro-txns', color: 'bg-sky-500', path: '#' },
-  { icon: Activity, label: 'Analytics', sub: 'Track spending', color: 'bg-rose-500', path: '#' },
+  { icon: Globe, label: 'Remittance', sub: 'Cross-border FX', color: 'bg-emerald-500', path: '/remit' },
+  { icon: CreditCard, label: 'Pay Bills', sub: 'Electricity, Water, Internet', color: 'bg-orange-500', path: '#' },
+  { icon: Banknote, label: 'Quick Loan', sub: 'Up to $10,000 USDC', color: 'bg-pink-500', path: '#' },
+  { icon: Smartphone, label: 'Mobile Top-up', sub: '4G/5G Data plans', color: 'bg-teal-500', path: '#' },
+  { icon: Building2, label: 'Bank Transfer', sub: 'Link bank accounts', color: 'bg-indigo-500', path: '#' },
+  { icon: Shield, label: 'Insurance', sub: 'Health, Auto, Travel', color: 'bg-amber-500', path: '#' },
+  { icon: TrendingUp, label: 'Savings', sub: 'Earn yield on USDC', color: 'bg-green-500', path: '#' },
+  { icon: Zap, label: 'Nano Payments', sub: 'Pay-per-use APIs', color: 'bg-sky-500', path: '#' },
+  { icon: Activity, label: 'Analytics', sub: 'Track spending habits', color: 'bg-rose-500', path: '#' },
 ];
 
 const newsItems = [
-  { title: 'Send USDC with zero fees this week on Arc Testnet', tag: 'Promotion', image: '💸' },
-  { title: 'Global Payments AI Assistant now supports budget tracking', tag: 'New Feature', image: '🤖' },
-  { title: 'Cross-border remittance to 7 new countries live', tag: 'Update', image: '🌍' },
-  { title: 'Split Bill feature: smart settlement with AI suggestions', tag: 'New Feature', image: '👥' },
+  { title: 'Circle launches USDC natively on Arc — sub-second settlement with USDC gas', tag: 'Arc Network', image: IMAGES.news1, date: 'Jul 2026' },
+  { title: 'HackMoney 2026: 155 teams build stablecoin apps, SwiftPay wins with tap-to-pay', tag: 'Hackathon', image: IMAGES.news2, date: 'Jun 2026' },
+  { title: 'Arc Testnet processes 1M+ transactions with $0.01 avg fee and <1s finality', tag: 'Network Stats', image: IMAGES.news3, date: 'Jul 2026' },
+  { title: 'CCTP v2 enables native USDC bridging between Arc, Ethereum, Base, and Arbitrum', tag: 'Cross-chain', image: IMAGES.news4, date: 'Jul 2026' },
 ];
 
 export default function Dashboard() {
-  const { balance, transactions } = useStore();
-  useAccount();
+  const { balance } = useStore();
+  const { address, isConnected } = useAccount();
+  const { balance: usdcBalance, isLoading: usdcLoading } = useUSDCBalance();
+  const { balance: eurcBalance, isLoading: eurcLoading } = useEURCBalance();
+  const { balance: nativeBalance } = useNativeBalance();
+  const { transactions: onChainTxs, loading: txLoading } = useRecentTransactions(10);
   const navigate = useNavigate();
-  const total = balance.usdc + balance.eurc;
+
+  // Use real on-chain balance when connected, fallback to mock
+  const displayUSDC = isConnected ? usdcBalance : balance.usdc;
+  const displayEURC = isConnected ? eurcBalance : balance.eurc;
+  const total = displayUSDC + displayEURC;
 
   return (
     <div className="bg-white min-h-screen">
-      {/* Hero Banner (MoMo style) */}
-      <div className="bg-gradient-to-r from-blue-50 to-cyan-50 px-4 sm:px-6 py-8">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-2">
+      {/* Hero Banner with real background image */}
+      <div className="relative overflow-hidden" style={{ background: `linear-gradient(135deg, rgba(30,64,175,0.95), rgba(6,182,212,0.9)), url(${IMAGES.heroBg}) center/cover` }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-2">
             Digital Banking Services
           </h1>
-          <p className="text-base text-slate-500 max-w-2xl mb-6">
-            Global Payments lets you access diverse financial services with stablecoins at minimal cost — do more with your money on Arc Testnet.
+          <p className="text-base text-blue-100 max-w-2xl mb-8">
+            Global Payments lets you send, receive, split bills, and remit USDC worldwide — all on Arc Testnet with sub-second settlement.
           </p>
 
-          {/* Balance Card */}
-          <div className="hero-gradient p-6 sm:p-8 text-white relative max-w-2xl">
-            <div className="relative z-10">
-              <p className="text-blue-100 text-xs font-medium mb-1">Total Balance</p>
-              <div className="flex items-baseline gap-2">
-                <span className="balance-amount">${total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
-              </div>
-              <p className="text-blue-200 text-[11px] mt-1">Across USDC & EURC on Arc Testnet</p>
-              <div className="flex gap-2 mt-5">
-                <button onClick={() => navigate('/send')} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white/20 hover:bg-white/30 text-white text-sm font-semibold transition-colors">
-                  <Send className="w-4 h-4" /> Send
-                </button>
-                <button onClick={() => navigate('/receive')} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white/20 hover:bg-white/30 text-white text-sm font-semibold transition-colors">
-                  <QrCode className="w-4 h-4" /> Receive
-                </button>
-                <button onClick={() => navigate('/split')} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white/20 hover:bg-white/30 text-white text-sm font-semibold transition-colors">
-                  <Users className="w-4 h-4" /> Split
-                </button>
-                <button onClick={() => navigate('/remit')} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white/20 hover:bg-white/30 text-white text-sm font-semibold transition-colors">
-                  <Globe className="w-4 h-4" /> Remit
-                </button>
-              </div>
+          {/* Balance Card - REAL on-chain data */}
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 sm:p-8 text-white border border-white/20 max-w-2xl">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-blue-100 text-xs font-medium">Total Balance</p>
+              {isConnected && (
+                <span className="flex items-center gap-1.5 text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot" />
+                  Live from Arc Testnet
+                </span>
+              )}
             </div>
-          </div>
+            <div className="flex items-baseline gap-2">
+              <span className="balance-amount">
+                {isConnected ? `$${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '--'}
+              </span>
+              {!isConnected && <span className="text-sm text-blue-200">Connect wallet to view</span>}
+            </div>
 
-          {/* Token Balances */}
-          <div className="grid grid-cols-2 gap-3 mt-4 max-w-2xl">
-            <div className="card p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center"><span className="text-blue-600 font-bold text-sm">$</span></div>
-                <div><p className="text-[11px] text-slate-400 font-medium">USDC</p><p className="text-lg font-bold text-slate-900">{formatCurrency(balance.usdc)}</p></div>
+            {/* Token balances */}
+            <div className="flex gap-4 mt-4 mb-5">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-blue-400/30 flex items-center justify-center text-[10px] font-bold">$</div>
+                <div>
+                  <p className="text-[10px] text-blue-200">USDC</p>
+                  <p className="text-sm font-bold">{isConnected ? (usdcLoading ? '...' : displayUSDC.toLocaleString('en-US', { minimumFractionDigits: 2 })) : '--'}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-emerald-400/30 flex items-center justify-center text-[10px] font-bold">€</div>
+                <div>
+                  <p className="text-[10px] text-blue-200">EURC</p>
+                  <p className="text-sm font-bold">{isConnected ? (eurcLoading ? '...' : displayEURC.toLocaleString('en-US', { minimumFractionDigits: 2 })) : '--'}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-cyan-400/30 flex items-center justify-center text-[10px] font-bold">⛽</div>
+                <div>
+                  <p className="text-[10px] text-blue-200">Gas (native)</p>
+                  <p className="text-sm font-bold">{isConnected ? nativeBalance.toFixed(4) : '--'}</p>
+                </div>
               </div>
             </div>
-            <div className="card p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center"><span className="text-emerald-600 font-bold text-sm">€</span></div>
-                <div><p className="text-[11px] text-slate-400 font-medium">EURC</p><p className="text-lg font-bold text-slate-900">{formatCurrency(balance.eurc)}</p></div>
-              </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-2">
+              <button onClick={() => navigate('/send')} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white/20 hover:bg-white/30 text-white text-sm font-semibold transition-colors">
+                <Send className="w-4 h-4" /> Send
+              </button>
+              <button onClick={() => navigate('/receive')} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white/20 hover:bg-white/30 text-white text-sm font-semibold transition-colors">
+                <QrCode className="w-4 h-4" /> Receive
+              </button>
+              <button onClick={() => navigate('/split')} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white/20 hover:bg-white/30 text-white text-sm font-semibold transition-colors">
+                <Users className="w-4 h-4" /> Split
+              </button>
+              <button onClick={() => navigate('/remit')} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white/20 hover:bg-white/30 text-white text-sm font-semibold transition-colors">
+                <Globe className="w-4 h-4" /> Remit
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Category Tabs (MoMo horizontal scroll) */}
+      {/* Category Tabs */}
       <div className="border-b border-slate-200 bg-white sticky top-16 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex gap-1 overflow-x-auto py-3 scrollbar-hide">
@@ -132,12 +161,12 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Recommended Service Pills (MoMo style) */}
+      {/* Recommended Service Pills */}
       <div className="px-4 sm:px-6 py-5">
         <div className="max-w-7xl">
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {recommendedServices.map((svc, i) => (
-              <button key={i} className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-full border-2 bg-white text-sm font-medium whitespace-nowrap hover:shadow-sm transition-all ${svc.color}`}>
+              <button key={i} className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-full border-2 bg-white text-sm font-medium whitespace-nowrap hover:shadow-md transition-all ${svc.color}`}>
                 <span>{svc.icon}</span> {svc.label}
               </button>
             ))}
@@ -145,20 +174,20 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Promo Banner (MoMo AI assistant style) */}
+      {/* Promo Banner with real image */}
       <div className="px-4 sm:px-6 pb-6">
         <div className="max-w-7xl">
           <div className="card overflow-hidden">
             <div className="flex flex-col md:flex-row">
               <div className="flex-1 p-6 sm:p-8 bg-gradient-to-br from-blue-50 to-cyan-50">
                 <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 mb-3 leading-tight">
-                  Not just a wallet — Global Payments is your AI Financial Assistant
+                  Not just a wallet — your AI Financial Assistant
                 </h2>
                 <ul className="space-y-2 mb-5">
                   {[
-                    'Access diverse financial services with stablecoins at minimal cost',
-                    'Do more with your money — even the smallest transactions are viable on Arc',
-                    'AI appears in every interaction to protect your funds, simplify complex tasks, and help you learn personal finance'
+                    'Powered by Xiaomi MiMo AI — smart spending insights and budget alerts',
+                    'Send USDC in under 1 second for ~$0.01 on Arc Testnet',
+                    'Split bills, remit cross-border, and track expenses — all from one app'
                   ].map((text, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
                       <span className="text-blue-500 mt-0.5">✓</span> {text}
@@ -166,22 +195,18 @@ export default function Dashboard() {
                   ))}
                 </ul>
                 <button className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-colors">
-                  TRY NOW
+                  TRY AI ASSISTANT
                 </button>
               </div>
-              <div className="w-full md:w-72 h-48 md:h-auto bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 opacity-20">
-                  <div className="absolute top-4 left-8 w-20 h-20 rounded-full bg-white/30" />
-                  <div className="absolute bottom-8 right-12 w-32 h-32 rounded-full bg-white/20" />
-                </div>
-                <span className="text-7xl relative z-10">🤖</span>
+              <div className="w-full md:w-80 h-48 md:h-auto">
+                <img src={IMAGES.aiPromo} alt="AI Financial Assistant" className="w-full h-full object-cover" loading="lazy" />
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Services Grid (MoMo style) */}
+      {/* Services Grid */}
       <div className="px-4 sm:px-6 pb-6">
         <div className="max-w-7xl">
           <div className="flex items-center justify-between mb-4">
@@ -204,14 +229,14 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* What's New (MoMo news section) */}
+      {/* What's New with real images */}
       <div className="px-4 sm:px-6 pb-6">
         <div className="max-w-7xl">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-slate-900">What's New on Global Payments?</h2>
+            <h2 className="text-lg font-bold text-slate-900">What's New?</h2>
             <div className="flex gap-1 bg-slate-100 p-1 rounded-xl">
-              {['Latest', 'Promotions', 'Updates'].map(tab => (
-                <button key={tab} className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900 hover:bg-white transition-all first:bg-white first:text-slate-900 first:shadow-sm">
+              {['Latest', 'Arc News', 'Features'].map((tab, i) => (
+                <button key={tab} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${i === 0 ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}>
                   {tab}
                 </button>
               ))}
@@ -220,11 +245,14 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {newsItems.map((item, i) => (
               <div key={i} className="card overflow-hidden cursor-pointer group">
-                <div className="h-32 bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center text-5xl">
-                  {item.image}
+                <div className="h-36 overflow-hidden">
+                  <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
                 </div>
                 <div className="p-4">
-                  <span className="inline-block px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold rounded-full mb-2">{item.tag}</span>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="inline-block px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold rounded-full">{item.tag}</span>
+                    <span className="text-[10px] text-slate-400">{item.date}</span>
+                  </div>
                   <p className="text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2">{item.title}</p>
                 </div>
               </div>
@@ -233,7 +261,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Recent Transactions */}
+      {/* Recent Transactions - REAL on-chain */}
       <div className="px-4 sm:px-6 pb-6">
         <div className="max-w-7xl">
           <div className="card p-5">
@@ -241,51 +269,73 @@ export default function Dashboard() {
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <Activity className="w-5 h-5 text-blue-500" />
                 Recent Transactions
+                {isConnected && <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">On-chain</span>}
               </h2>
               <button onClick={() => navigate('/history')} className="text-sm text-blue-500 font-medium hover:text-blue-600">View all →</button>
             </div>
-            <div className="divide-y divide-slate-100">
-              {transactions.slice(0, 5).map(tx => (
-                <div key={tx.id} className="tx-row">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    tx.type === 'send' ? 'bg-red-50 text-red-500' :
-                    tx.type === 'receive' ? 'bg-emerald-50 text-emerald-500' :
-                    tx.type === 'split' ? 'bg-violet-50 text-violet-500' :
-                    'bg-blue-50 text-blue-500'
-                  }`}>
-                    {tx.type === 'send' ? <ArrowUpRight className="w-5 h-5" /> :
-                     tx.type === 'receive' ? <ArrowDownLeft className="w-5 h-5" /> :
-                     tx.type === 'split' ? <Users className="w-5 h-5" /> :
-                     <Globe className="w-5 h-5" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-semibold text-slate-900 truncate">
-                      {tx.type === 'send' ? `To ${tx.to}` : tx.type === 'receive' ? `From ${tx.from}` : tx.type === 'split' ? tx.to : `Remit to ${tx.to}`}
-                    </p>
-                    <p className="text-[11px] text-slate-400">{formatTime(tx.timestamp)}{tx.memo ? ` · ${tx.memo}` : ''}</p>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className={`text-[13px] font-bold ${tx.type === 'receive' ? 'text-emerald-600' : 'text-slate-900'}`}>
-                      {tx.type === 'receive' ? '+' : '-'}{formatCurrency(tx.amount)}
-                    </p>
-                    <StatusBadge status={tx.status} />
-                  </div>
-                </div>
-              ))}
-            </div>
+            
+            {!isConnected ? (
+              <div className="text-center py-8">
+                <Wallet className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                <p className="text-sm text-slate-500">Connect your wallet to see on-chain transactions</p>
+              </div>
+            ) : txLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-3" />
+                <p className="text-sm text-slate-500">Loading transactions from Arc Testnet...</p>
+              </div>
+            ) : onChainTxs.length === 0 ? (
+              <div className="text-center py-8">
+                <Activity className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                <p className="text-sm text-slate-500">No transactions found on Arc Testnet</p>
+                <button onClick={() => navigate('/send')} className="mt-3 btn-primary !text-xs !py-2">Send your first USDC →</button>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {onChainTxs.slice(0, 8).map(tx => {
+                  const isSent = tx.from.toLowerCase() === address?.toLowerCase();
+                  return (
+                    <div key={tx.hash} className="tx-row">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isSent ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-500'}`}>
+                        {isSent ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownLeft className="w-5 h-5" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-semibold text-slate-900 truncate">
+                          {isSent ? `To ${tx.to.slice(0, 6)}...${tx.to.slice(-4)}` : `From ${tx.from.slice(0, 6)}...${tx.from.slice(-4)}`}
+                        </p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <Clock className="w-3 h-3 text-slate-400" />
+                          <span className="text-[11px] text-slate-400">{formatTime(tx.timestamp)}</span>
+                          <StatusBadge status={tx.status === 'success' ? 'completed' : tx.status} />
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className={`text-[13px] font-bold ${isSent ? 'text-slate-900' : 'text-emerald-600'}`}>
+                          {isSent ? '-' : '+'}{(Number(tx.value) / 1e18).toFixed(4)} USDC
+                        </p>
+                        <a href={`https://testnet.arcscan.app/tx/${tx.hash}`} target="_blank" rel="noreferrer"
+                          className="text-[10px] text-blue-500 hover:text-blue-600 flex items-center gap-0.5 justify-end mt-0.5">
+                          View <ExternalLink className="w-2.5 h-2.5" />
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Trust & Security (MoMo style) */}
+      {/* Security & Trust */}
       <div className="px-4 sm:px-6 pb-8">
         <div className="max-w-7xl">
           <h2 className="text-lg font-bold text-slate-900 mb-4 text-center">Secure Payments — Absolute Safety</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
-              { icon: Shield, title: 'International Security Standard', desc: 'Arc L1 blockchain with sub-second deterministic finality and post-quantum security.' },
-              { icon: Zap, title: 'Bank-Grade Reliability', desc: 'Circle-backed USDC stablecoin, 1:1 USD reserves, permissioned validator set.' },
-              { icon: Lock, title: 'Encrypted & Compliant', desc: 'Opt-in privacy, selective disclosure, compliance hooks with Elliptic & TRM Labs.' },
+              { icon: Shield, title: 'Arc L1 Security', desc: 'Sub-second deterministic finality, post-quantum security, permissioned validator set by Circle.' },
+              { icon: Zap, title: 'USDC Native Gas', desc: 'Pay ~$0.01 per transaction in USDC — no volatile gas tokens. EIP-1559-style fee smoothing.' },
+              { icon: Globe, title: 'Cross-Chain Ready', desc: 'CCTP v2 for native USDC bridging. Gateway for unified balance across Ethereum, Base, Arbitrum.' },
             ].map((item, i) => (
               <div key={i} className="card p-5 text-center">
                 <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-3">
@@ -299,13 +349,5 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
-  );
-}
-
-function Lock(props: any) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-    </svg>
   );
 }

@@ -1,39 +1,63 @@
-import Header from '../components/Header';
-import { useStore } from '../hooks/useStore';
 import { StatusBadge } from '../components/UI';
-import { formatCurrency, formatTime, shortenAddress } from '../utils/format';
-import { ArrowUpRight, ArrowDownLeft, Users, Globe, Search, ExternalLink } from 'lucide-react';
+import { formatTime } from '../utils/format';
+import { useRecentTransactions } from '../hooks/useTransactions';
+import { useAccount } from 'wagmi';
+import WalletConnect from '../components/WalletConnect';
+import { ArrowUpRight, ArrowDownLeft, Search, ExternalLink, Clock, Activity, Wallet } from 'lucide-react';
 import { useState } from 'react';
 
 export default function History() {
-  const { transactions } = useStore();
+  const { address, isConnected } = useAccount();
+  const { transactions, loading } = useRecentTransactions(50);
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   const filtered = transactions.filter(tx => {
-    if (filter !== 'all' && tx.type !== filter) return false;
-    if (searchQuery) { const q = searchQuery.toLowerCase(); return tx.to.toLowerCase().includes(q) || tx.from.toLowerCase().includes(q) || tx.memo?.toLowerCase().includes(q); }
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return tx.hash.toLowerCase().includes(q) || tx.to.toLowerCase().includes(q) || tx.from.toLowerCase().includes(q);
+    }
     return true;
   });
 
-  const getIcon = (type: string) => {
-    const map: Record<string, any> = { send: ArrowUpRight, receive: ArrowDownLeft, split: Users, remit: Globe };
-    const colors: Record<string, string> = { send: 'bg-red-50 text-red-500', receive: 'bg-emerald-50 text-emerald-500', split: 'bg-violet-50 text-violet-500', remit: 'bg-blue-50 text-blue-500' };
-    const Icon = map[type] || ArrowUpRight;
-    return <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colors[type]}`}><Icon className="w-5 h-5" /></div>;
-  };
+  if (!isConnected) {
+    return (
+      <div className="bg-white min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+          <h1 className="text-2xl font-extrabold text-slate-900 mb-1">Transaction History</h1>
+          <p className="text-sm text-slate-400 mb-8">View your on-chain transactions</p>
+          <div className="card p-8 text-center max-w-md mx-auto">
+            <Wallet className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-lg font-bold text-slate-900 mb-2">Connect Wallet</h3>
+            <p className="text-sm text-slate-500 mb-5">Connect to view your real transaction history on Arc Testnet.</p>
+            <WalletConnect />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-slate-50 min-h-screen">
-      <Header title="Transaction History" subtitle={`${transactions.length} transactions`} />
-      <div className="p-4 sm:p-6">
+    <div className="bg-white min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-extrabold text-slate-900">Transaction History</h1>
+            <p className="text-sm text-slate-400">Real-time on-chain data from Arc Testnet</p>
+          </div>
+          <a href={`https://testnet.arcscan.app/address/${address}`} target="_blank" rel="noreferrer"
+            className="btn-secondary !text-xs flex items-center gap-1">
+            View on ArcScan <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
+
         <div className="flex flex-col sm:flex-row gap-3 mb-4">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search transactions..." className="pl-11" />
+            <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search by hash, address..." className="pl-11" />
           </div>
           <div className="tab-bar">
-            {['all', 'send', 'receive', 'split', 'remit'].map(f => (
+            {['all', 'sent', 'received'].map(f => (
               <button key={f} onClick={() => setFilter(f)}
                 className={`tab-item ${filter === f ? 'active' : ''}`}>
                 {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -42,34 +66,52 @@ export default function History() {
           </div>
         </div>
 
-        <div className="card divide-y divide-slate-100">
-          {filtered.length === 0 ? (
-            <div className="p-12 text-center text-slate-400 text-sm">No transactions found</div>
-          ) : filtered.map(tx => (
-            <div key={tx.id} className="tx-row">
-              {getIcon(tx.type)}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-[13px] font-semibold text-slate-900 truncate">
-                    {tx.type === 'send' ? `Sent to ${tx.to}` : tx.type === 'receive' ? `Received from ${tx.from}` : tx.type === 'split' ? tx.to : `Remitted to ${tx.to}`}
-                  </p>
-                  <StatusBadge status={tx.status} />
-                </div>
-                <p className="text-[11px] text-slate-400 mt-0.5">{formatTime(tx.timestamp)}{tx.memo ? ` · ${tx.memo}` : ''}</p>
-              </div>
-              <div className="text-right flex-shrink-0">
-                <p className={`text-[13px] font-bold ${tx.type === 'receive' ? 'text-emerald-600' : 'text-slate-900'}`}>
-                  {tx.type === 'receive' ? '+' : '-'}{formatCurrency(tx.amount)}
-                </p>
-                {tx.hash && (
-                  <a href={`https://testnet.arcscan.app/tx/${tx.hash}`} target="_blank" rel="noreferrer"
-                    className="text-[10px] text-blue-500 hover:text-blue-600 flex items-center gap-0.5 justify-end mt-0.5">
-                    {shortenAddress(tx.hash)} <ExternalLink className="w-2.5 h-2.5" />
-                  </a>
-                )}
-              </div>
+        <div className="card">
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-3" />
+              <p className="text-sm text-slate-500">Loading transactions from Arc Testnet...</p>
             </div>
-          ))}
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-12">
+              <Activity className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+              <p className="text-sm text-slate-500">No transactions found</p>
+              <p className="text-xs text-slate-400 mt-1">Your on-chain transactions will appear here</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-100">
+              {filtered.map(tx => {
+                const isSent = tx.from.toLowerCase() === address?.toLowerCase();
+                return (
+                  <div key={tx.hash} className="tx-row">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isSent ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-500'}`}>
+                      {isSent ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownLeft className="w-5 h-5" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-semibold text-slate-900 truncate font-mono">
+                        {isSent ? `To ${tx.to}` : `From ${tx.from}`}
+                      </p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <Clock className="w-3 h-3 text-slate-400" />
+                        <span className="text-[11px] text-slate-400">{formatTime(tx.timestamp)}</span>
+                        <span className="text-[10px] text-slate-400">Block #{tx.blockNumber}</span>
+                        <StatusBadge status={tx.status === 'success' ? 'completed' : tx.status} />
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className={`text-[13px] font-bold ${isSent ? 'text-slate-900' : 'text-emerald-600'}`}>
+                        {isSent ? '-' : '+'}{(Number(tx.value) / 1e18).toFixed(4)} USDC
+                      </p>
+                      <a href={`https://testnet.arcscan.app/tx/${tx.hash}`} target="_blank" rel="noreferrer"
+                        className="text-[10px] text-blue-500 hover:text-blue-600 flex items-center gap-0.5 justify-end mt-0.5">
+                        {tx.hash.slice(0, 10)}... <ExternalLink className="w-2.5 h-2.5" />
+                      </a>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
