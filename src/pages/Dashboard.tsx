@@ -3,14 +3,17 @@ import { useStore } from '../hooks/useStore';
 import { StatusBadge } from '../components/UI';
 import { formatCurrency, formatTime, shortenAddress } from '../utils/format';
 import { useNavigate } from 'react-router-dom';
+import { useAccount } from 'wagmi';
+import WalletConnect from '../components/WalletConnect';
 import {
   Send, QrCode, ArrowDownLeft, ArrowUpRight, Users, Globe,
   TrendingUp, Activity, CreditCard, Banknote,
-  Zap, Shield, Smartphone, Building2
+  Zap, Shield, Smartphone, Building2, Wallet
 } from 'lucide-react';
 
 export default function Dashboard() {
   const { balance, transactions } = useStore();
+  const { address, isConnected } = useAccount();
   const navigate = useNavigate();
   const total = balance.usdc + balance.eurc;
 
@@ -41,6 +44,24 @@ export default function Dashboard() {
   return (
     <div className="bg-slate-50 min-h-screen">
       <Header title="Dashboard" subtitle="Your digital banking hub" />
+
+      {/* Connect Wallet Prompt (not connected) */}
+      {!isConnected && (
+        <div className="px-4 sm:px-6 pt-5">
+          <div className="card p-5 border-2 border-dashed border-blue-200 bg-blue-50/50">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center">
+                <Wallet className="w-7 h-7 text-blue-500" />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <h3 className="text-sm font-bold text-slate-900 mb-0.5">Connect your wallet to get started</h3>
+                <p className="text-xs text-slate-500">Connect MetaMask or WalletConnect to send, receive, and manage USDC on Arc Testnet</p>
+              </div>
+              <WalletConnect />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Hero Balance Section */}
       <div className="px-4 sm:px-6 pt-5 pb-3">
@@ -242,7 +263,9 @@ export default function Dashboard() {
             <Shield className="w-4 h-4 text-blue-500" />
             <div>
               <p className="text-xs font-semibold text-slate-700">Wallet</p>
-              <p className="text-[10px] text-slate-400 font-mono">{shortenAddress('0xb3351234567890abcdef1234567890abcdefc544')}</p>
+              <p className="text-[10px] text-slate-400 font-mono">
+                {isConnected ? shortenAddress(address || '') : 'Not connected'}
+              </p>
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
-import { Bell, Search, ChevronDown } from 'lucide-react';
+import { Bell, Search } from 'lucide-react';
 import { useState } from 'react';
+import WalletConnect from './WalletConnect';
 
 interface HeaderProps { title: string; subtitle?: string; }
 
@@ -23,11 +24,7 @@ export default function Header({ title, subtitle }: HeaderProps) {
           <Bell className="w-4 h-4" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-500 border-2 border-white" />
         </button>
-        <button className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors ml-1">
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-[10px] font-bold text-white">A</div>
-          <span className="text-xs font-medium text-slate-700 hidden sm:block">0xb335...c544</span>
-          <ChevronDown className="w-3 h-3 text-slate-400" />
-        </button>
+        <WalletConnect />
       </div>
     </header>
   );

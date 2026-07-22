@@ -47,7 +47,6 @@ export function useStore() {
   const [groups] = useState<SplitGroup[]>(MOCK_GROUPS);
   const [expenses] = useState<SplitExpense[]>(MOCK_SPLIT_EXPENSES);
   const [remits, setRemits] = useState<RemitTransfer[]>(MOCK_REMITS);
-  const [connected] = useState(true);
 
   const sendUSDC = useCallback(async (to: string, amount: number, memo?: string) => {
     const tx: Transaction = {
@@ -63,7 +62,6 @@ export function useStore() {
       memo,
     };
     setTransactions(prev => [tx, ...prev]);
-    
     await new Promise(r => setTimeout(r, 2000));
     setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, status: 'completed' } : t));
     return tx;
@@ -88,5 +86,5 @@ export function useStore() {
     return remit;
   }, []);
 
-  return { balance, transactions, contacts, groups, expenses, remits, connected, sendUSDC, createRemit };
+  return { balance, transactions, contacts, groups, expenses, remits, sendUSDC, createRemit };
 }
