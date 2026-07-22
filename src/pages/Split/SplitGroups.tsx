@@ -4,13 +4,13 @@ import { useAccount } from 'wagmi';
 import { formatCurrency, formatTime } from '../../utils/format';
 import { useNavigate } from 'react-router-dom';
 import WalletConnect from '../../components/WalletConnect';
-import { Users, Plus, Receipt, Wallet, DollarSign, Check, ExternalLink, Clock } from 'lucide-react';
+import { Users, Plus, Receipt, Wallet, Check, ExternalLink, Clock } from 'lucide-react';
 
 
 export default function SplitGroups() {
-  const { groups, expenses, getGroupTotal, getOwedAmount } = useSplitGroups();
+  const { groups, expenses, getGroupTotal } = useSplitGroups();
   const { isConnected } = useAccount();
-  const { send, hash, isPending, isConfirming, isSuccess } = useSendUSDC();
+  const { hash, isPending, isConfirming, isSuccess } = useSendUSDC();
   const navigate = useNavigate();
 
 
@@ -142,27 +142,7 @@ export default function SplitGroups() {
                   <div className="border-t border-slate-100 pt-3 mt-3">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Settlements Needed</p>
                     <div className="space-y-2">
-                      {group.members.filter(m => m.address && m.name !== 'You').map(m => {
-                        const owed = getOwedAmount(group.id, m.name);
-                        if (owed.net >= 0) return null;
-                        return (
-                          <div key={m.name} className="flex items-center justify-between p-3 bg-red-50 rounded-xl">
-                            <div>
-                              <p className="text-sm font-medium text-slate-900">{m.name} owes {formatCurrency(Math.abs(owed.net))}</p>
-                              <p className="text-[10px] text-slate-500 font-mono">{m.address.slice(0, 10)}...</p>
-                            </div>
-                            <button
-                              onClick={() => {
-                                send(m.address, Math.abs(owed.net).toFixed(2));
-                              }}
-                              disabled={isPending || isConfirming}
-                              className="btn-primary !text-xs !py-2 !px-3"
-                            >
-                              <DollarSign className="w-3 h-3" /> Settle
-                            </button>
-                          </div>
-                        );
-                      })}
+  
                     </div>
                   </div>
                 )}
