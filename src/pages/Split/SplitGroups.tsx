@@ -1,79 +1,169 @@
-import Header from '../../components/Header';
-import { useStore } from '../../hooks/useStore';
-
+import { useSplitGroups } from '../../hooks/useSplitGroups';
+import { useSendUSDC } from '../../hooks/useOnChain';
+import { useAccount } from 'wagmi';
 import { formatCurrency, formatTime } from '../../utils/format';
 import { useNavigate } from 'react-router-dom';
-import { Users, Plus, ChevronRight, Receipt } from 'lucide-react';
+import WalletConnect from '../../components/WalletConnect';
+import { Users, Plus, Receipt, Wallet, DollarSign, Check, ExternalLink, Clock } from 'lucide-react';
+
 
 export default function SplitGroups() {
-  const { groups, expenses } = useStore();
+  const { groups, expenses, getGroupTotal, getOwedAmount } = useSplitGroups();
+  const { isConnected } = useAccount();
+  const { send, hash, isPending, isConfirming, isSuccess } = useSendUSDC();
   const navigate = useNavigate();
 
-  return (
-    <div className="bg-slate-50 min-h-screen">
-      <Header title="Split Groups" subtitle="Manage shared expenses" />
-      <div className="p-4 sm:p-6">
-        {/* Create Group Button */}
-        <button onClick={() => navigate('/split/new')} className="btn-primary w-full mb-4">
-          <Plus className="w-4 h-4" /> Create New Expense
-        </button>
 
-        {/* Groups List */}
-        <div className="space-y-3">
+  if (!isConnected) {
+    return (
+      <div className="bg-white min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+          <h1 className="text-2xl font-extrabold text-slate-900 mb-1">Split Groups</h1>
+          <p className="text-sm text-slate-400 mb-8">Manage shared expenses with on-chain settlement</p>
+          <div className="card p-8 text-center max-w-md mx-auto">
+            <Wallet className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-lg font-bold text-slate-900 mb-2">Connect Wallet</h3>
+            <p className="text-sm text-slate-500 mb-5">Connect to manage split groups and settle on Arc Testnet.</p>
+            <WalletConnect />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-extrabold text-slate-900">Split Groups</h1>
+            <p className="text-sm text-slate-400">Manage shared expenses — settle on-chain with USDC</p>
+          </div>
+          <button onClick={() => navigate('/split/new')} className="btn-primary">
+            <Plus className="w-4 h-4" /> New Group
+          </button>
+        </div>
+
+        {/* Settlement status */}
+        {(isPending || isConfirming || isSuccess) && (
+          <div className={`card p-4 mb-4 border-2 ${isSuccess ? 'border-emerald-200 bg-emerald-50' : 'border-blue-200 bg-blue-50'}`}>
+            {isPending && <p className="text-sm text-blue-900 font-medium">⏳ Confirm settlement in MetaMask...</p>}
+            {isConfirming && <p className="text-sm text-blue-900 font-medium">⏳ Confirming on Arc Testnet...</p>}
+            {isSuccess && (
+              <div className="flex items-center gap-2">
+                <Check className="w-5 h-5 text-emerald-500" />
+                <p className="text-sm text-emerald-900 font-medium">Settlement confirmed!</p>
+                {hash && <a href={`https://testnet.arcscan.app/tx/${hash}`} target="_blank" rel="noreferrer" className="text-xs text-emerald-600 hover:underline flex items-center gap-1">View <ExternalLink className="w-3 h-3" /></a>}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="space-y-4">
           {groups.map(group => {
             const groupExpenses = expenses.filter(e => e.groupId === group.id);
+            const total = getGroupTotal(group.id);
+            const unsettled = groupExpenses.filter(e => !e.settled);
+
             return (
-              <div key={group.id} className="card p-4 cursor-pointer" onClick={() => {}}>
-                <div className="flex items-start justify-between mb-3">
+              <div key={group.id} className="card p-5">
+                <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-violet-50 flex items-center justify-center">
-                      <Users className="w-5 h-5 text-violet-500" />
+                    <div className="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center">
+                      <Users className="w-6 h-6 text-violet-500" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-slate-900">{group.name}</h3>
-                      <p className="text-[11px] text-slate-400">{group.members.length} members · Created {formatTime(group.createdAt)}</p>
+                      <h3 className="text-base font-bold text-slate-900">{group.name}</h3>
+                      <p className="text-xs text-slate-400">{group.members.length} members · {groupExpenses.length} expenses · {formatTime(group.createdAt)}</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-slate-300" />
                 </div>
 
                 {/* Members */}
-                <div className="flex items-center gap-1 mb-3">
-                  {group.members.slice(0, 4).map((m) => (
-                    <div key={m.id} className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-[9px] font-bold text-white border-2 border-white -ml-1 first:ml-0">
-                      {m.name.split(' ').map(n => n[0]).join('')}
+                <div className="flex items-center gap-1 mb-4">
+                  {group.members.map((m, i) => (
+                    <div key={i} className="flex items-center gap-1 px-2 py-1 bg-slate-50 rounded-lg text-[11px] font-medium text-slate-700">
+                      <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-[8px] font-bold text-white">
+                        {m.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      </div>
+                      {m.name}
                     </div>
                   ))}
-                  {group.members.length > 4 && (
-                    <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-[9px] font-bold text-slate-500 border-2 border-white -ml-1">
-                      +{group.members.length - 4}
-                    </div>
-                  )}
                 </div>
 
                 {/* Stats */}
-                <div className="flex items-center justify-between bg-slate-50 rounded-xl p-3">
-                  <div>
-                    <p className="text-[10px] text-slate-400">Total Expenses</p>
-                    <p className="text-base font-bold text-slate-900">{formatCurrency(group.totalExpenses)}</p>
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  <div className="bg-slate-50 rounded-xl p-3 text-center">
+                    <p className="text-[10px] text-slate-400">Total</p>
+                    <p className="text-base font-bold text-slate-900">{formatCurrency(total)}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[10px] text-slate-400">Per Person</p>
-                    <p className="text-base font-bold text-blue-600">{formatCurrency(group.totalExpenses / group.members.length)}</p>
+                  <div className="bg-blue-50 rounded-xl p-3 text-center">
+                    <p className="text-[10px] text-blue-600">Per Person</p>
+                    <p className="text-base font-bold text-blue-700">{formatCurrency(total / group.members.length)}</p>
+                  </div>
+                  <div className="bg-amber-50 rounded-xl p-3 text-center">
+                    <p className="text-[10px] text-amber-600">Unsettled</p>
+                    <p className="text-base font-bold text-amber-700">{unsettled.length}</p>
                   </div>
                 </div>
 
                 {/* Recent Expenses */}
                 {groupExpenses.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-slate-100">
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-2">Recent</p>
-                    {groupExpenses.slice(0, 2).map(exp => (
-                      <div key={exp.id} className="flex items-center gap-2 py-1.5">
-                        <Receipt className="w-3.5 h-3.5 text-slate-400" />
-                        <span className="text-xs text-slate-700 flex-1">{exp.description}</span>
-                        <span className="text-xs font-semibold text-slate-900">{formatCurrency(exp.amount)}</span>
-                      </div>
-                    ))}
+                  <div className="border-t border-slate-100 pt-3">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Expenses</p>
+                    <div className="space-y-2">
+                      {groupExpenses.slice(0, 5).map(exp => (
+                        <div key={exp.id} className="flex items-center gap-3 py-2 px-3 rounded-xl hover:bg-slate-50 transition-colors">
+                          <Receipt className="w-4 h-4 text-slate-400" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-slate-900">{exp.description}</p>
+                            <p className="text-[10px] text-slate-400">Paid by {exp.paidBy} · Split {exp.splitAmong.length} ways · {formatTime(exp.timestamp)}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-bold text-slate-900">{formatCurrency(exp.amount)}</p>
+                            {exp.settled ? (
+                              <span className="text-[10px] text-emerald-600 flex items-center gap-0.5">
+                                <Check className="w-3 h-3" /> Settled
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-amber-600 flex items-center gap-0.5">
+                                <Clock className="w-3 h-3" /> Pending
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Settlement Section */}
+                {unsettled.length > 0 && (
+                  <div className="border-t border-slate-100 pt-3 mt-3">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Settlements Needed</p>
+                    <div className="space-y-2">
+                      {group.members.filter(m => m.address && m.name !== 'You').map(m => {
+                        const owed = getOwedAmount(group.id, m.name);
+                        if (owed.net >= 0) return null;
+                        return (
+                          <div key={m.name} className="flex items-center justify-between p-3 bg-red-50 rounded-xl">
+                            <div>
+                              <p className="text-sm font-medium text-slate-900">{m.name} owes {formatCurrency(Math.abs(owed.net))}</p>
+                              <p className="text-[10px] text-slate-500 font-mono">{m.address.slice(0, 10)}...</p>
+                            </div>
+                            <button
+                              onClick={() => {
+                                send(m.address, Math.abs(owed.net).toFixed(2));
+                              }}
+                              disabled={isPending || isConfirming}
+                              className="btn-primary !text-xs !py-2 !px-3"
+                            >
+                              <DollarSign className="w-3 h-3" /> Settle
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>

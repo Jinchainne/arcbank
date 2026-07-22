@@ -41,14 +41,14 @@ const services = [
   { icon: QrCode, label: 'Receive', sub: 'QR & address', color: 'bg-cyan-500', path: '/receive' },
   { icon: Users, label: 'Split Bill', sub: 'Group expenses', color: 'bg-violet-500', path: '/split' },
   { icon: Globe, label: 'Remittance', sub: 'Cross-border FX', color: 'bg-emerald-500', path: '/remit' },
-  { icon: CreditCard, label: 'Pay Bills', sub: 'Electricity, Water, Internet', color: 'bg-orange-500', path: '#' },
-  { icon: Banknote, label: 'Quick Loan', sub: 'Up to $10,000 USDC', color: 'bg-pink-500', path: '#' },
-  { icon: Smartphone, label: 'Mobile Top-up', sub: '4G/5G Data plans', color: 'bg-teal-500', path: '#' },
-  { icon: Building2, label: 'Bank Transfer', sub: 'Link bank accounts', color: 'bg-indigo-500', path: '#' },
-  { icon: Shield, label: 'Insurance', sub: 'Health, Auto, Travel', color: 'bg-amber-500', path: '#' },
-  { icon: TrendingUp, label: 'Savings', sub: 'Earn yield on USDC', color: 'bg-green-500', path: '#' },
-  { icon: Zap, label: 'Nano Payments', sub: 'Pay-per-use APIs', color: 'bg-sky-500', path: '#' },
-  { icon: Activity, label: 'Analytics', sub: 'Track spending habits', color: 'bg-rose-500', path: '#' },
+  { icon: CreditCard, label: 'Pay Bills', sub: 'Electricity, Water, Internet', color: 'bg-orange-500', path: '/send' },
+  { icon: Banknote, label: 'Quick Loan', sub: 'Coming soon on Arc', color: 'bg-pink-500', path: '#' },
+  { icon: Smartphone, label: 'Mobile Top-up', sub: 'Coming soon on Arc', color: 'bg-teal-500', path: '#' },
+  { icon: Building2, label: 'Bank Transfer', sub: 'Coming soon via CCTP', color: 'bg-indigo-500', path: '#' },
+  { icon: Shield, label: 'Insurance', sub: 'Coming soon on Arc', color: 'bg-amber-500', path: '#' },
+  { icon: TrendingUp, label: 'Savings', sub: 'Coming soon: USDC yield', color: 'bg-green-500', path: '#' },
+  { icon: Zap, label: 'Nano Payments', sub: 'Micro-txns on Arc', color: 'bg-sky-500', path: '/send' },
+  { icon: Activity, label: 'Analytics', sub: 'Coming soon', color: 'bg-rose-500', path: '/history' },
 ];
 
 // Real news from Circle blog + CoinDesk (Jul 2026)
@@ -151,17 +151,20 @@ export default function Dashboard() {
       <div className="border-b border-slate-200 bg-white sticky top-16 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex gap-1 overflow-x-auto py-3 scrollbar-hide">
-            {categories.map((cat, i) => (
-              <button key={i} onClick={() => {
-                if (cat.label === 'Payments') navigate('/send');
-                else if (cat.label === 'Transfers') navigate('/remit');
-                else if (cat.label === 'Travel') navigate('/remit');
-              }} className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all cursor-pointer ${
-                cat.active ? 'bg-blue-50 text-blue-600 border border-blue-200' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50 hover:border hover:border-slate-200'
-              }`}>
-                <span>{cat.icon}</span> {cat.label}
-              </button>
-            ))}
+            {categories.map((cat, i) => {
+              const routes: Record<string, string> = {
+                'Recommended': '/', 'Finance & Insurance': '/history', 'Payments': '/send',
+                'Transfers': '/remit', 'Travel': '/remit', 'Utilities': '/send',
+                'Entertainment': '/history', 'Shopping': '/send',
+              };
+              return (
+                <button key={i} onClick={() => navigate(routes[cat.label] || '/')} className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all cursor-pointer ${
+                  cat.active ? 'bg-blue-50 text-blue-600 border border-blue-200' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50 hover:border hover:border-slate-200'
+                }`}>
+                  <span>{cat.icon}</span> {cat.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -299,7 +302,10 @@ export default function Dashboard() {
               <div className="text-center py-8">
                 <Activity className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                 <p className="text-sm text-slate-500">No transactions found on Arc Testnet</p>
-                <button onClick={() => navigate('/send')} className="mt-3 btn-primary !text-xs !py-2">Send your first USDC →</button>
+                <div className="flex gap-2 mt-3 justify-center">
+                    <button onClick={() => navigate('/send')} className="btn-primary !text-xs !py-2">Send USDC →</button>
+                    <a href="https://faucet.circle.com" target="_blank" rel="noreferrer" className="btn-secondary !text-xs !py-2">Get Testnet USDC ↗</a>
+                  </div>
               </div>
             ) : (
               <div className="divide-y divide-slate-100">

@@ -11,6 +11,7 @@ import SplitGroups from './pages/Split/SplitGroups';
 import NewExpense from './pages/Split/NewExpense';
 import RemitTransfer from './pages/Remit/RemitTransfer';
 import RemitHistory from './pages/Remit/RemitHistory';
+import Contacts from './pages/Contacts';
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ export default function App() {
               <Route path="split/new" element={<NewExpense />} />
               <Route path="remit" element={<RemitTransfer />} />
               <Route path="remit/history" element={<RemitHistory />} />
+              <Route path="contacts" element={<Contacts />} />
             </Route>
           </Routes>
         </BrowserRouter>
