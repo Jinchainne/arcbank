@@ -51,11 +51,12 @@ const services = [
   { icon: Activity, label: 'Analytics', sub: 'Track spending habits', color: 'bg-rose-500', path: '#' },
 ];
 
+// Real news from Circle blog + CoinDesk (Jul 2026)
 const newsItems = [
-  { title: 'Circle launches USDC natively on Arc — sub-second settlement with USDC gas', tag: 'Arc Network', image: IMAGES.news1, date: 'Jul 2026' },
-  { title: 'HackMoney 2026: 155 teams build stablecoin apps, SwiftPay wins with tap-to-pay', tag: 'Hackathon', image: IMAGES.news2, date: 'Jun 2026' },
-  { title: 'Arc Testnet processes 1M+ transactions with $0.01 avg fee and <1s finality', tag: 'Network Stats', image: IMAGES.news3, date: 'Jul 2026' },
-  { title: 'CCTP v2 enables native USDC bridging between Arc, Ethereum, Base, and Arbitrum', tag: 'Cross-chain', image: IMAGES.news4, date: 'Jul 2026' },
+  { title: 'Introducing Arc: Circle Open Layer-1 Blockchain for Stablecoin Finance', tag: 'Blockchain', image: IMAGES.news1, date: 'Jul 2026' },
+  { title: 'Augustus Raises $180M to Build a Clearing Bank for the AI and Stablecoin Era', tag: 'Finance', image: IMAGES.news2, date: 'Jul 2026' },
+  { title: 'Visa Launches Stablecoin Platform as Circle Faces Fresh Competition', tag: 'Payments', image: IMAGES.news3, date: 'Jul 2026' },
+  { title: 'Agent Stack: Financial Infrastructure for the Agentic Economy', tag: 'Developer', image: IMAGES.news4, date: 'Jul 2026' },
 ];
 
 export default function Dashboard() {
