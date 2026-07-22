@@ -1,6 +1,6 @@
 {
-  "name": "ArcBank - Digital Banking on Arc",
-  "short_name": "ArcBank",
+  "name": "Global Payments - Digital Banking on Arc",
+  "short_name": "Global Payments",
   "description": "Digital banking on stablecoin rails. Send, receive, split bills, and remit USDC on Arc Testnet.",
   "start_url": "/",
   "display": "standalone",

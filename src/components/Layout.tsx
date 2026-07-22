@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
+import AIChat from './AIChat';
 
 export default function Layout() {
   return (
@@ -8,13 +9,14 @@ export default function Layout() {
       <main className="max-w-7xl mx-auto">
         <Outlet />
       </main>
+      <AIChat />
       
       {/* Footer */}
       <footer className="bg-slate-900 text-slate-400 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
-              <h4 className="text-white font-bold text-sm mb-4">ArcBank</h4>
+              <h4 className="text-white font-bold text-sm mb-4">Global Payments</h4>
               <p className="text-xs leading-relaxed">Digital banking on stablecoin rails. Built on Arc Testnet with USDC.</p>
             </div>
             <div>
@@ -44,7 +46,7 @@ export default function Layout() {
             </div>
           </div>
           <div className="border-t border-slate-800 mt-8 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-xs">&copy; 2026 ArcBank. Programmable Money Hackathon.</p>
+            <p className="text-xs">&copy; 2026 Global Payments. Programmable Money Hackathon.</p>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500 pulse-dot" />
               <span className="text-xs">Arc Testnet · Chain 5042002</span>

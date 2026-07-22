@@ -11,7 +11,7 @@ const navItems = [
     { label: 'Split Bill', path: '/split' },
     { label: 'Remittance', path: '/remit' },
   ]},
-  { label: 'About ArcBank', path: '#' },
+  { label: 'About Global Payments', path: '#' },
   { label: 'News', path: '#' },
   { label: 'Help', path: '#' },
   { label: 'Partners', path: '#' },
@@ -34,7 +34,7 @@ export default function Navbar() {
                 <Wallet className="w-5 h-5 text-white" />
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-lg font-extrabold text-slate-900 leading-tight tracking-tight">ArcBank</h1>
+                <h1 className="text-lg font-extrabold text-slate-900 leading-tight tracking-tight">Global Payments</h1>
               </div>
             </NavLink>
 

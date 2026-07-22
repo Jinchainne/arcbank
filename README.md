@@ -1,8 +1,8 @@
-# ArcBank — Digital Banking on Stablecoin Rails
+# Global Payments — Digital Banking on Stablecoin Rails
 
 > Programmable Money Hackathon — Arc × Encode Club
 
-ArcBank is a full-featured digital banking application built on **Arc Testnet** with **USDC** as the native currency. Inspired by modern fintech super-apps like MoMo, ArcBank provides a seamless banking experience on blockchain rails.
+Global Payments is a full-featured digital banking application built on **Arc Testnet** with **USDC** as the native currency. Inspired by modern fintech super-apps like MoMo, Global Payments provides a seamless banking experience on blockchain rails.
 
 ## Features
 

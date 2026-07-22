@@ -51,7 +51,7 @@ const services = [
 
 const newsItems = [
   { title: 'Send USDC with zero fees this week on Arc Testnet', tag: 'Promotion', image: '💸' },
-  { title: 'ArcBank AI Assistant now supports budget tracking', tag: 'New Feature', image: '🤖' },
+  { title: 'Global Payments AI Assistant now supports budget tracking', tag: 'New Feature', image: '🤖' },
   { title: 'Cross-border remittance to 7 new countries live', tag: 'Update', image: '🌍' },
   { title: 'Split Bill feature: smart settlement with AI suggestions', tag: 'New Feature', image: '👥' },
 ];
@@ -71,7 +71,7 @@ export default function Dashboard() {
             Digital Banking Services
           </h1>
           <p className="text-base text-slate-500 max-w-2xl mb-6">
-            ArcBank lets you access diverse financial services with stablecoins at minimal cost — do more with your money on Arc Testnet.
+            Global Payments lets you access diverse financial services with stablecoins at minimal cost — do more with your money on Arc Testnet.
           </p>
 
           {/* Balance Card */}
@@ -152,7 +152,7 @@ export default function Dashboard() {
             <div className="flex flex-col md:flex-row">
               <div className="flex-1 p-6 sm:p-8 bg-gradient-to-br from-blue-50 to-cyan-50">
                 <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 mb-3 leading-tight">
-                  Not just a wallet — ArcBank is your AI Financial Assistant
+                  Not just a wallet — Global Payments is your AI Financial Assistant
                 </h2>
                 <ul className="space-y-2 mb-5">
                   {[
@@ -208,7 +208,7 @@ export default function Dashboard() {
       <div className="px-4 sm:px-6 pb-6">
         <div className="max-w-7xl">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-slate-900">What's New on ArcBank?</h2>
+            <h2 className="text-lg font-bold text-slate-900">What's New on Global Payments?</h2>
             <div className="flex gap-1 bg-slate-100 p-1 rounded-xl">
               {['Latest', 'Promotions', 'Updates'].map(tab => (
                 <button key={tab} className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900 hover:bg-white transition-all first:bg-white first:text-slate-900 first:shadow-sm">
