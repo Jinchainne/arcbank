@@ -6,6 +6,7 @@ import { useAccount } from 'wagmi';
 import { useUSDCBalance, useEURCBalance, useNativeBalance } from '../hooks/useOnChain';
 import { useRecentTransactions } from '../hooks/useTransactions';
 import { IMAGES } from '../config/images';
+import Onboarding from '../components/Onboarding';
 import {
   Send, QrCode, ArrowDownLeft, ArrowUpRight, Users, Globe,
   TrendingUp, Activity, CreditCard, Banknote,
@@ -75,7 +76,13 @@ export default function Dashboard() {
 
   return (
     <div className="bg-white min-h-screen">
-      {/* Hero Banner with real background image */}
+      {/* Onboarding Guide (shown when not connected) */}
+      <Onboarding />
+
+      {/* Onboarding Guide */}
+      <Onboarding />
+
+      {/* Hero Banner */}
       <div className="relative overflow-hidden" style={{ background: `linear-gradient(135deg, rgba(30,64,175,0.95), rgba(6,182,212,0.9)), url(${IMAGES.heroBg}) center/cover` }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-2">

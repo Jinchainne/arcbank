@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import AIChat from './AIChat';
+import NetworkDebug from './NetworkDebug';
 
 export default function Layout() {
   return (
@@ -10,6 +11,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <AIChat />
+      <NetworkDebug />
       
       {/* Footer */}
       <footer className="bg-slate-900 text-slate-400 mt-12">
