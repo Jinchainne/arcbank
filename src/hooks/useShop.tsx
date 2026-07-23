@@ -24,7 +24,7 @@ export interface Order {
   merchantAddress: string;
 }
 
-export const MERCHANT_ADDRESS = '0x363700000000000000000000000000000000034bD';
+export const MERCHANT_ADDRESS = '0x363700d10ca9c4809ad7034f5b21650a9a5e34bd';
 
 const PRODUCTS: Product[] = [
   { id: 'cf1', name: 'Espresso', price: 3.50, category: 'Coffee', image: 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=300&h=300&fit=crop', description: 'Strong & bold single shot' },

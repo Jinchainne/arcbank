@@ -136,7 +136,7 @@ export default function ShopCheckout() {
                 <div className={`card p-3 ${insufficientBalance ? 'border-red-200 bg-red-50' : 'border-emerald-200 bg-emerald-50'}`}>
                   <div className="flex justify-between text-sm">
                     <span className={insufficientBalance ? 'text-red-700' : 'text-emerald-700'}>Your USDC Balance</span>
-                    <span className={`font-bold ${insufficientBalance ? 'text-red-700' : 'text-emerald-700'}`}>{formatCurrency(balance)} USDC</span>
+                    <span className={`font-bold ${insufficientBalance ? 'text-red-700' : 'text-emerald-700'}`}>{formatCurrency(balance)}</span>
                   </div>
                   {insufficientBalance && <p className="text-xs text-red-600 mt-1">Insufficient balance. Need {formatCurrency(cartTotal - balance)} more.</p>}
                 </div>
