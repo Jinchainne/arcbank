@@ -28,11 +28,9 @@ export default function Navbar() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-14">
-          {/* Logo */}
-          <NavLink to="/shop" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-600 to-red-700 flex items-center justify-center">
-              <Coffee className="w-4 h-4 text-white" />
-            </div>
+          {/* Logo with real coffee image */}
+          <NavLink to="/shop" className="flex items-center gap-2.5 flex-shrink-0">
+            <img src="/logo.png" alt="Coffee House" className="w-9 h-9 rounded-xl object-cover shadow-md" />
             <div className="hidden sm:block">
               <h1 className="text-sm font-extrabold text-slate-900 leading-tight tracking-tight">COFFEE HOUSE</h1>
               <p className="text-[8px] text-slate-400 uppercase tracking-[0.2em]">The Coffee of the World</p>
@@ -60,7 +58,6 @@ export default function Navbar() {
               <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-red-500" />
             </button>
 
-            {/* Cart icon (mobile) */}
             <button onClick={() => navigate('/shop/delivery')} className="lg:hidden p-2 rounded-lg text-slate-400 hover:text-slate-600 relative">
               <ShoppingCart className="w-4 h-4" />
               {cartCount > 0 && (

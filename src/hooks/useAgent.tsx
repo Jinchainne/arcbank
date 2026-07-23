@@ -1,12 +1,8 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 
-// ═══════════════════════════════════════════════════════
-// AGENTIC ECONOMY - Agents with wallets, autonomous payments
-// ═══════════════════════════════════════════════════════
-
 export interface AgentWallet {
   address: string;
-  balance: number; // USDC
+  balance: number;
   label: string;
 }
 
@@ -26,15 +22,15 @@ export interface AgentDecision {
   agentId: string;
   type: 'recommendation' | 'payment' | 'settlement' | 'routing' | 'risk_check';
   description: string;
-  signal: string; // The real signal that triggered the decision
+  signal: string;
   result: string;
-  confidence: number; // 0-100
+  confidence: number;
   timestamp: number;
 }
 
 export interface AgentTransaction {
   id: string;
-  from: string; // agent id or wallet address
+  from: string;
   to: string;
   amount: number;
   currency: 'USDC';
@@ -61,7 +57,6 @@ interface AgentCtx {
   totalAgentBalance: number;
   totalTransactions: number;
   totalDecisions: number;
-  // Agent actions
   processOrder: (orderItems: string[], total: number) => void;
   settlePayment: (fromAgent: string, toAgent: string, amount: number, desc: string) => void;
   dispatchDelivery: (orderId: string, address: string) => void;
@@ -72,63 +67,112 @@ interface AgentCtx {
 
 const AgentContext = createContext<AgentCtx | null>(null);
 
-// Default agent wallets (simulated on-chain addresses)
-const DEFAULT_AGENTS: Agent[] = [
-  {
-    id: 'agent-order',
-    name: 'Order Agent',
-    role: 'order',
-    wallet: { address: '0xA1B2...order', balance: 50.00, label: 'Order Processing Wallet' },
-    status: 'active',
-    decisions: [],
-    transactions: [],
-    createdAt: Date.now(),
-  },
-  {
-    id: 'agent-merchant',
-    name: 'Merchant Agent',
-    role: 'merchant',
-    wallet: { address: '0xC3D4...merch', balance: 500.00, label: 'Merchant Settlement Wallet' },
-    status: 'active',
-    decisions: [],
-    transactions: [],
-    createdAt: Date.now(),
-  },
-  {
-    id: 'agent-delivery',
-    name: 'Delivery Agent',
-    role: 'delivery',
-    wallet: { address: '0xE5F6...deliv', balance: 25.00, label: 'Delivery Routing Wallet' },
-    status: 'idle',
-    decisions: [],
-    transactions: [],
-    createdAt: Date.now(),
-  },
-  {
-    id: 'agent-ai',
-    name: 'AI Advisor Agent',
-    role: 'ai_advisor',
-    wallet: { address: '0xG7H8...advisor', balance: 100.00, label: 'AI Service Wallet' },
-    status: 'active',
-    decisions: [],
-    transactions: [],
-    createdAt: Date.now(),
-  },
-];
+// Demo data so dashboard shows real activity on first load
+function getDefaultAgents(): Agent[] {
+  const now = Date.now();
+  const h = (hours: number) => now - hours * 3600000;
+  const m = (mins: number) => now - mins * 60000;
+
+  return [
+    {
+      id: 'agent-order',
+      name: 'Order Agent',
+      role: 'order',
+      wallet: { address: '0xA1B2...order', balance: 49.97, label: 'Order Processing Wallet' },
+      status: 'active',
+      decisions: [
+        { id: 'D-1', agentId: 'agent-order', type: 'risk_check', description: 'Analyzing order of 2 items worth $11.91 USDC', signal: 'Order total: $11.91, Items: Caffè Latte, Butter Croissant', result: 'Approved: within normal range', confidence: 95, timestamp: m(15) },
+        { id: 'D-2', agentId: 'agent-order', type: 'risk_check', description: 'Analyzing order of 1 item worth $7.50 USDC', signal: 'Order total: $7.50, Items: Cơm Tấm Sườn Nướng', result: 'Approved: within normal range', confidence: 97, timestamp: m(45) },
+        { id: 'D-3', agentId: 'agent-order', type: 'risk_check', description: 'Analyzing order of 3 items worth $24.50 USDC', signal: 'Order total: $24.50, Items: Phở Bò Tái, Bún Bò Huế, Cà Phê Sữa Đá', result: 'Approved: within normal range', confidence: 93, timestamp: h(2) },
+      ],
+      transactions: [
+        { id: 'TX-1', from: 'agent-order', to: 'agent-merchant', amount: 0.01, currency: 'USDC', type: 'nanopayment', description: 'Order processing fee', status: 'confirmed', txHash: '0xabc123...', timestamp: m(15) },
+        { id: 'TX-2', from: 'agent-order', to: 'agent-merchant', amount: 0.01, currency: 'USDC', type: 'nanopayment', description: 'Order processing fee', status: 'confirmed', txHash: '0xdef456...', timestamp: m(45) },
+      ],
+      createdAt: h(24),
+    },
+    {
+      id: 'agent-merchant',
+      name: 'Merchant Agent',
+      role: 'merchant',
+      wallet: { address: '0xC3D4...merch', balance: 500.04, label: 'Merchant Settlement Wallet' },
+      status: 'active',
+      decisions: [
+        { id: 'D-4', agentId: 'agent-merchant', type: 'settlement', description: 'Settling payment of $11.91 USDC for order', signal: 'Payment received: $11.91 USDC from customer wallet', result: 'Payment confirmed on Arc Testnet, order queued for preparation', confidence: 99, timestamp: m(14) },
+        { id: 'D-5', agentId: 'agent-merchant', type: 'settlement', description: 'Settling payment of $7.50 USDC for order', signal: 'Payment received: $7.50 USDC from customer wallet', result: 'Payment confirmed on Arc Testnet, order queued for preparation', confidence: 99, timestamp: m(44) },
+        { id: 'D-6', agentId: 'agent-merchant', type: 'settlement', description: 'Settling payment of $24.50 USDC for order', signal: 'Payment received: $24.50 USDC from customer wallet', result: 'Payment confirmed on Arc Testnet, order dispatched', confidence: 99, timestamp: h(2) },
+      ],
+      transactions: [
+        { id: 'TX-3', from: 'agent-merchant', to: 'agent-ai', amount: 0.005, currency: 'USDC', type: 'nanopayment', description: 'AI recommendation service', status: 'confirmed', timestamp: m(14) },
+        { id: 'TX-4', from: 'agent-merchant', to: 'agent-delivery', amount: 0.50, currency: 'USDC', type: 'delivery_fee', description: 'Delivery dispatch fee', status: 'confirmed', timestamp: m(13) },
+      ],
+      createdAt: h(24),
+    },
+    {
+      id: 'agent-delivery',
+      name: 'Delivery Agent',
+      role: 'delivery',
+      wallet: { address: '0xE5F6...deliv', balance: 25.50, label: 'Delivery Routing Wallet' },
+      status: 'active',
+      decisions: [
+        { id: 'D-7', agentId: 'agent-delivery', type: 'routing', description: 'Routing delivery for order ORD-M1K2P', signal: 'Delivery address: Trường Chinh, Ho Chi Minh City', result: 'Delivery dispatched, ETA 25 minutes', confidence: 90, timestamp: m(13) },
+        { id: 'D-8', agentId: 'agent-delivery', type: 'routing', description: 'Routing delivery for order ORD-N2L3Q', signal: 'Delivery address: District 7, Ho Chi Minh City', result: 'Delivery dispatched, ETA 30 minutes', confidence: 88, timestamp: m(43) },
+      ],
+      transactions: [
+        { id: 'TX-5', from: 'agent-merchant', to: 'agent-delivery', amount: 0.50, currency: 'USDC', type: 'delivery_fee', description: 'Delivery dispatch fee', status: 'confirmed', timestamp: m(13) },
+      ],
+      createdAt: h(24),
+    },
+    {
+      id: 'agent-ai',
+      name: 'AI Advisor Agent',
+      role: 'ai_advisor',
+      wallet: { address: '0xG7H8...advisor', balance: 100.01, label: 'AI Service Wallet' },
+      status: 'active',
+      decisions: [
+        { id: 'D-9', agentId: 'agent-ai', type: 'recommendation', description: 'Suggesting complementary items for coffee order', signal: 'Cart contains: Caffè Latte, Butter Croissant', result: 'Recommendation: Add Matcha Latte or Fruit Juice', confidence: 82, timestamp: m(14) },
+        { id: 'D-10', agentId: 'agent-ai', type: 'recommendation', description: 'Suggesting complementary items for Vietnamese food', signal: 'Cart contains: Phở Bò Tái, Bún Bò Huế', result: 'Recommendation: Add Cà Phê Sữa Đá for authentic experience', confidence: 88, timestamp: h(2) },
+      ],
+      transactions: [
+        { id: 'TX-6', from: 'agent-merchant', to: 'agent-ai', amount: 0.005, currency: 'USDC', type: 'nanopayment', description: 'AI recommendation service', status: 'confirmed', timestamp: m(14) },
+      ],
+      createdAt: h(24),
+    },
+  ];
+}
+
+function getDefaultNanoPayments(): NanoPayment[] {
+  const now = Date.now();
+  const m = (mins: number) => now - mins * 60000;
+  return [
+    { id: 'NP-1', fromAgent: 'agent-order', toAgent: 'agent-merchant', amount: 0.01, service: 'Order processing fee', status: 'paid', timestamp: m(15) },
+    { id: 'NP-2', fromAgent: 'agent-merchant', toAgent: 'agent-ai', amount: 0.005, service: 'AI recommendation service', status: 'paid', timestamp: m(14) },
+    { id: 'NP-3', fromAgent: 'agent-merchant', toAgent: 'agent-delivery', amount: 0.50, service: 'Delivery dispatch fee', status: 'paid', timestamp: m(13) },
+    { id: 'NP-4', fromAgent: 'agent-order', toAgent: 'agent-merchant', amount: 0.01, service: 'Order processing fee', status: 'paid', timestamp: m(45) },
+  ];
+}
 
 export function AgentProvider({ children }: { children: ReactNode }) {
   const [agents, setAgents] = useState<Agent[]>(() => {
     try {
       const saved = localStorage.getItem('coffeehouse_agents');
-      return saved ? JSON.parse(saved) : DEFAULT_AGENTS;
-    } catch { return DEFAULT_AGENTS; }
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.length > 0 ? parsed : getDefaultAgents();
+      }
+      return getDefaultAgents();
+    } catch { return getDefaultAgents(); }
   });
 
   const [nanoPayments, setNanoPayments] = useState<NanoPayment[]>(() => {
     try {
       const saved = localStorage.getItem('coffeehouse_nano');
-      return saved ? JSON.parse(saved) : [];
-    } catch { return []; }
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.length > 0 ? parsed : getDefaultNanoPayments();
+      }
+      return getDefaultNanoPayments();
+    } catch { return getDefaultNanoPayments(); }
   });
 
   const saveAgents = (updated: Agent[]) => {
@@ -149,7 +193,6 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       if (a.id !== tx.from && a.id !== tx.to) return a;
       const newTx: AgentTransaction = { ...tx, id: `TX-${Date.now().toString(36)}`, timestamp: Date.now() };
       const updated = { ...a, transactions: [newTx, ...a.transactions].slice(0, 50) };
-      // Update balance
       if (a.id === tx.from) updated.wallet = { ...a.wallet, balance: a.wallet.balance - tx.amount };
       if (a.id === tx.to) updated.wallet = { ...a.wallet, balance: a.wallet.balance + tx.amount };
       return updated;
@@ -159,93 +202,60 @@ export function AgentProvider({ children }: { children: ReactNode }) {
   const sendNanoPayment = useCallback((from: string, to: string, amount: number, service: string) => {
     const payment: NanoPayment = {
       id: `NP-${Date.now().toString(36)}`,
-      fromAgent: from,
-      toAgent: to,
-      amount,
-      service,
-      status: 'paid',
-      timestamp: Date.now(),
+      fromAgent: from, toAgent: to, amount, service, status: 'paid', timestamp: Date.now(),
     };
     setNanoPayments(prev => {
       const updated = [payment, ...prev];
       localStorage.setItem('coffeehouse_nano', JSON.stringify(updated));
       return updated;
     });
-    // Also record as agent transaction
-    addTransaction({
-      from, to, amount, currency: 'USDC',
-      type: 'nanopayment', description: service, status: 'confirmed',
-    });
+    addTransaction({ from, to, amount, currency: 'USDC', type: 'nanopayment', description: service, status: 'confirmed' });
   }, [addTransaction]);
 
   const processOrder = useCallback((orderItems: string[], total: number) => {
-    // Order Agent: analyze order, check risk, recommend
     addDecision('agent-order', {
-      agentId: 'agent-order',
-      type: 'risk_check',
+      agentId: 'agent-order', type: 'risk_check',
       description: `Analyzing order of ${orderItems.length} items worth $${total.toFixed(2)} USDC`,
       signal: `Order total: $${total.toFixed(2)}, Items: ${orderItems.join(', ')}`,
       result: total > 100 ? 'Flagged: high-value order, require confirmation' : 'Approved: within normal range',
       confidence: total > 100 ? 75 : 95,
     });
-
-    // AI Advisor: recommend based on order
     addDecision('agent-ai', {
-      agentId: 'agent-ai',
-      type: 'recommendation',
+      agentId: 'agent-ai', type: 'recommendation',
       description: `Suggesting complementary items for order`,
       signal: `Cart contains: ${orderItems.slice(0, 3).join(', ')}`,
       result: 'Recommendation: Add a beverage to complement food items',
       confidence: 82,
     });
-
-    // Merchant Agent: settle payment
     addDecision('agent-merchant', {
-      agentId: 'agent-merchant',
-      type: 'settlement',
+      agentId: 'agent-merchant', type: 'settlement',
       description: `Settling payment of $${total.toFixed(2)} USDC for order`,
       signal: `Payment received: $${total.toFixed(2)} USDC from customer wallet`,
       result: 'Payment confirmed on Arc Testnet, order queued for preparation',
       confidence: 99,
     });
-
-    // Nanopayment: Order Agent → Merchant Agent (processing fee)
     sendNanoPayment('agent-order', 'agent-merchant', 0.01, 'Order processing fee');
-
-    // Nanopayment: Merchant → AI Advisor (recommendation fee)
     sendNanoPayment('agent-merchant', 'agent-ai', 0.005, 'AI recommendation service');
   }, [addDecision, sendNanoPayment]);
 
   const settlePayment = useCallback((fromAgent: string, toAgent: string, amount: number, desc: string) => {
-    addTransaction({
-      from: fromAgent, to: toAgent, amount, currency: 'USDC',
-      type: 'settlement', description: desc, status: 'confirmed',
-    });
+    addTransaction({ from: fromAgent, to: toAgent, amount, currency: 'USDC', type: 'settlement', description: desc, status: 'confirmed' });
     addDecision(fromAgent, {
-      agentId: fromAgent,
-      type: 'payment',
+      agentId: fromAgent, type: 'payment',
       description: `Settling $${amount.toFixed(4)} USDC to ${toAgent}`,
       signal: `Settlement request: ${desc}`,
-      result: 'Transaction confirmed on Arc Testnet',
-      confidence: 99,
+      result: 'Transaction confirmed on Arc Testnet', confidence: 99,
     });
   }, [addTransaction, addDecision]);
 
   const dispatchDelivery = useCallback((orderId: string, address: string) => {
-    // Delivery Agent: route delivery
     addDecision('agent-delivery', {
-      agentId: 'agent-delivery',
-      type: 'routing',
+      agentId: 'agent-delivery', type: 'routing',
       description: `Routing delivery for order ${orderId}`,
       signal: `Delivery address: ${address}`,
-      result: 'Delivery dispatched, ETA 25 minutes',
-      confidence: 90,
+      result: 'Delivery dispatched, ETA 25 minutes', confidence: 90,
     });
-
-    // Nanopayment: Merchant → Delivery Agent (delivery fee)
     sendNanoPayment('agent-merchant', 'agent-delivery', 0.50, 'Delivery dispatch fee');
-
-    // Update delivery agent status
     saveAgents(agents.map(a => a.id === 'agent-delivery' ? { ...a, status: 'processing' as const } : a));
   }, [agents, addDecision, sendNanoPayment, saveAgents]);
 

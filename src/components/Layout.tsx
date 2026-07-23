@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import AIChat from './AIChat';
-import { Coffee } from 'lucide-react';
+
 
 export default function Layout() {
   return (
@@ -18,8 +18,8 @@ export default function Layout() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-amber-600 to-red-700 rounded-lg flex items-center justify-center">
-                  <Coffee className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 rounded-lg overflow-hidden">
+                <img src="/logo.png" alt="Coffee House" className="w-full h-full object-cover" />
                 </div>
                 <span className="text-white font-extrabold text-sm">COFFEE HOUSE</span>
               </div>

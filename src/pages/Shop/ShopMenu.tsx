@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useShop } from '../../hooks/useShop';
-import { ShoppingBag, Plus, Minus, Search, ShoppingCart, Coffee, Heart } from 'lucide-react';
+import { ShoppingBag, Plus, Minus, Search, ShoppingCart, Heart } from 'lucide-react';
 
 const CATEGORY_LIST = [
   { name: 'Hot Coffee', icon: '☕', count: 0 },
@@ -53,8 +53,8 @@ export default function ShopMenu() {
         <div className="flex items-center gap-4 mb-6">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-amber-600 to-red-700 rounded-lg flex items-center justify-center">
-                <Coffee className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 rounded-lg overflow-hidden shadow-md">
+                <img src="/logo.png" alt="Coffee House" className="w-full h-full object-cover" />
               </div>
               <div>
                 <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">COFFEE HOUSE</h1>
