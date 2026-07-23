@@ -9,9 +9,9 @@ const navItems = [
     { label: 'Send Money', path: '/send' },
     { label: 'Receive', path: '/receive' },
     { label: 'Split Bill', path: '/split' },
-                        { label: 'Remittance', path: '/remit' },
-                        { label: 'ArcPay Shop', path: '/shop' },
-                        { label: 'Contacts', path: '/contacts' },
+    { label: 'Remittance', path: '/remit' },
+    { label: 'ArcPay Shop', path: '/shop' },
+    { label: 'Contacts', path: '/contacts' },
   ]},
   { label: 'About Global Payments', path: '#about' },
   { label: 'News', path: '#news' },
@@ -43,10 +43,19 @@ export default function Navbar() {
             {/* Desktop Nav Links */}
             <div className="hidden lg:flex items-center gap-1">
               {navItems.map((item) => (
-                <button key={item.label}
-                  onClick={() => item.children && navigate(item.children[0].path)}
-                  className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors relative group">
-                  {item.label}
+                <div key={item.label} className="relative group">
+                  {item.children ? (
+                    <button
+                      onClick={() => navigate(item.children[0].path)}
+                      className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                      {item.label}
+                    </button>
+                  ) : (
+                    <NavLink to={item.path}
+                      className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                      {item.label}
+                    </NavLink>
+                  )}
                   {item.children && (
                     <div className="absolute left-0 top-full mt-1 w-48 bg-white rounded-xl shadow-xl border border-slate-200 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                       {item.children.map(child => (
@@ -57,7 +66,7 @@ export default function Navbar() {
                       ))}
                     </div>
                   )}
-                </button>
+                </div>
               ))}
             </div>
 
