@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Loader2, Bot, User } from 'lucide-react';
+import { MessageCircle, X, Send, Loader2, User } from 'lucide-react';
 
 const MIMO_API = 'https://api.xiaomimimo.com/v1/chat/completions';
 const MIMO_KEY = 'sk-szsjdjw70m8t5bwy8tgx4n0taa4egpnicnidvpt3im9exf3l';
@@ -90,7 +90,7 @@ Keep responses short and helpful. Always suggest specific items with prices.`
           <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-4 py-3 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                <Bot className="w-5 h-5" />
+                <img src="/agent.png" alt="AI" className="w-5 h-5 rounded-full object-cover" />
               </div>
               <div>
                 <p className="text-sm font-bold">AI Assistant</p>
@@ -108,7 +108,7 @@ Keep responses short and helpful. Always suggest specific items with prices.`
               <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {msg.role === 'assistant' && (
                   <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Bot className="w-4 h-4 text-blue-600" />
+                    <img src="/agent.png" alt="AI" className="w-4 h-4 rounded-full object-cover" />
                   </div>
                 )}
                 <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
@@ -128,7 +128,7 @@ Keep responses short and helpful. Always suggest specific items with prices.`
             {loading && (
               <div className="flex gap-2">
                 <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-4 h-4 text-blue-600" />
+                  <img src="/agent.png" alt="AI" className="w-4 h-4 rounded-full object-cover" />
                 </div>
                 <div className="bg-slate-100 rounded-2xl rounded-bl-md px-3 py-2">
                   <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />

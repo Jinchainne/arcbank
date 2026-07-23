@@ -6,6 +6,7 @@ import { ShopProvider } from './hooks/useShop';
 import { AdminProvider } from './hooks/useAdmin';
 import { AgentProvider } from './hooks/useAgent';
 import { SocialProvider } from './hooks/useSocial';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import ShopMenu from './pages/Shop/ShopMenu';
 import ShopCheckout from './pages/Shop/ShopCheckout';
@@ -21,6 +22,7 @@ const queryClient = new QueryClient();
 
 export default function App() {
   return (
+    <ErrorBoundary>
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
@@ -49,5 +51,6 @@ export default function App() {
         </BrowserRouter>
       </QueryClientProvider>
     </WagmiProvider>
+    </ErrorBoundary>
   );
 }
