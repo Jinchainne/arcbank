@@ -9,10 +9,6 @@ const MAP_CSS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
 const DEFAULT_LAT = 10.8231;
 const DEFAULT_LNG = 106.6297;
 
-// MiMo AI API for address geocoding
-const MIMO_API = 'https://api.xiaomimimo.com/v1/chat/completions';
-const MIMO_KEY = 'sk-szsjdjw70m8t5bwy8tgx4n0taa4egpnicnidvpt3im9exf3l';
-
 function calcShippingFee(lat: number, lng: number): number {
   const shopLat = 10.7769;
   const shopLng = 106.7009;
@@ -30,6 +26,27 @@ interface GeoResult {
   lng: number;
   display_name: string;
 }
+
+// Hardcoded popular Vietnamese locations for instant results
+const POPULAR_LOCATIONS: GeoResult[] = [
+  { name: 'Ho Chi Minh City', lat: 10.8231, lng: 106.6297, display_name: 'Ho Chi Minh City, Vietnam' },
+  { name: 'Hanoi', lat: 21.0285, lng: 105.8542, display_name: 'Hanoi, Vietnam' },
+  { name: 'Da Nang', lat: 16.0544, lng: 108.2022, display_name: 'Da Nang, Vietnam' },
+  { name: 'Nha Trang', lat: 12.2388, lng: 109.1967, display_name: 'Nha Trang, Khanh Hoa, Vietnam' },
+  { name: 'Hue', lat: 16.4637, lng: 107.5909, display_name: 'Hue, Thua Thien Hue, Vietnam' },
+  { name: 'Da Lat', lat: 11.9404, lng: 108.4583, display_name: 'Da Lat, Lam Dong, Vietnam' },
+  { name: 'Can Tho', lat: 10.0452, lng: 105.7469, display_name: 'Can Tho, Vietnam' },
+  { name: 'Hai Phong', lat: 20.8449, lng: 106.6881, display_name: 'Hai Phong, Vietnam' },
+  { name: 'Vung Tau', lat: 10.3460, lng: 107.0840, display_name: 'Vung Tau, Ba Ria-Vung Tau, Vietnam' },
+  { name: 'Phu Quoc', lat: 10.2270, lng: 103.9660, display_name: 'Phu Quoc Island, Kien Giang, Vietnam' },
+  { name: 'Quy Nhon', lat: 13.7560, lng: 109.2180, display_name: 'Quy Nhon, Binh Dinh, Vietnam' },
+  { name: 'Buon Ma Thuot', lat: 12.6660, lng: 108.0380, display_name: 'Buon Ma Thuot, Dak Lak, Vietnam' },
+  { name: 'District 1, HCMC', lat: 10.7769, lng: 106.7009, display_name: 'District 1, Ho Chi Minh City, Vietnam' },
+  { name: 'District 7, HCMC', lat: 10.7290, lng: 106.7180, display_name: 'District 7, Ho Chi Minh City, Vietnam' },
+  { name: 'Tan Binh, HCMC', lat: 10.8015, lng: 106.6530, display_name: 'Tan Binh District, Ho Chi Minh City, Vietnam' },
+  { name: 'Binh Thanh, HCMC', lat: 10.8070, lng: 106.7100, display_name: 'Binh Thanh District, Ho Chi Minh City, Vietnam' },
+  { name: 'Thu Duc, HCMC', lat: 10.8700, lng: 106.7700, display_name: 'Thu Duc City, Ho Chi Minh City, Vietnam' },
+];
 
 export default function DeliveryPage() {
   const navigate = useNavigate();
@@ -53,7 +70,9 @@ export default function DeliveryPage() {
   // Reverse geocode: coordinates → address
   const reverseGeocode = useCallback(async (lat: number, lng: number) => {
     try {
-      const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+      const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+        headers: { 'Accept-Language': 'en' }
+      });
       const data = await resp.json();
       if (data.display_name) {
         setAddress(data.display_name);
@@ -64,55 +83,50 @@ export default function DeliveryPage() {
     }
   }, []);
 
-  // MiMo AI geocoding: address → coordinates
-  const searchWithMiMo = useCallback(async (query: string) => {
+  // Search addresses - instant local match + Nominatim fallback
+  const searchAddress = useCallback(async (query: string) => {
     if (query.length < 2) {
       setSuggestions([]);
+      setShowSuggestions(false);
       return;
     }
+
+    const q = query.toLowerCase();
+
+    // Instant: match from popular locations
+    const localMatches = POPULAR_LOCATIONS.filter(loc =>
+      loc.name.toLowerCase().includes(q) || loc.display_name.toLowerCase().includes(q)
+    );
+
+    if (localMatches.length > 0) {
+      setSuggestions(localMatches);
+      setShowSuggestions(true);
+    }
+
+    // Also try Nominatim for more specific addresses
     setSearching(true);
     try {
-      const resp = await fetch(MIMO_API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MIMO_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'mimo-v2.5-pro',
-          messages: [{
-            role: 'user',
-            content: `You are a geocoding assistant. Given the location query "${query}", return a JSON array of up to 5 matching real places. Each item must have: "name" (short name), "lat" (latitude number), "lng" (longitude number), "display_name" (full address in English). Return ONLY the JSON array, no explanation. Example: [{"name":"Ho Chi Minh City","lat":10.8231,"lng":106.6297,"display_name":"Ho Chi Minh City, Vietnam"}]`
-          }],
-          temperature: 0.1,
-          max_tokens: 800,
-        }),
+      const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=vn`, {
+        headers: { 'Accept-Language': 'en' }
       });
       const data = await resp.json();
-      const content = data.choices?.[0]?.message?.content || '';
-      // Extract JSON from response
-      const jsonMatch = content.match(/\[[\s\S]*\]/);
-      if (jsonMatch) {
-        const results: GeoResult[] = JSON.parse(jsonMatch[0]);
-        setSuggestions(results);
-        setShowSuggestions(true);
-      }
-    } catch (err) {
-      // Fallback to Nominatim
-      try {
-        const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`);
-        const data = await resp.json();
+      if (data.length > 0) {
         const results: GeoResult[] = data.map((item: any) => ({
           name: item.display_name.split(',')[0],
           lat: parseFloat(item.lat),
           lng: parseFloat(item.lon),
           display_name: item.display_name,
         }));
-        setSuggestions(results);
+        // Merge with local results, dedupe by name
+        const merged = [...localMatches];
+        results.forEach(r => {
+          if (!merged.find(m => m.name === r.name)) merged.push(r);
+        });
+        setSuggestions(merged.slice(0, 8));
         setShowSuggestions(true);
-      } catch {
-        setSuggestions([]);
       }
+    } catch {
+      // Local results already shown
     } finally {
       setSearching(false);
     }
@@ -122,24 +136,25 @@ export default function DeliveryPage() {
   useEffect(() => {
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     searchTimeoutRef.current = setTimeout(() => {
-      if (searchQuery && searchQuery !== address) {
-        searchWithMiMo(searchQuery);
-      }
-    }, 600);
+      searchAddress(searchQuery);
+    }, 300);
     return () => clearTimeout(searchTimeoutRef.current);
-  }, [searchQuery, searchWithMiMo, address]);
+  }, [searchQuery, searchAddress]);
 
   // Select suggestion → move map + pin
   const selectSuggestion = useCallback((s: GeoResult) => {
     setPosition({ lat: s.lat, lng: s.lng });
     setAddress(s.display_name);
-    setSearchQuery(s.display_name);
+    setSearchQuery(s.name);
     setShowSuggestions(false);
+    setSuggestions([]);
     if (mapInstanceRef.current && markerRef.current) {
-      mapInstanceRef.current.setView([s.lat, s.lng], 17);
+      mapInstanceRef.current.setView([s.lat, s.lng], 15);
       markerRef.current.setLatLng([s.lat, s.lng]);
     }
-  }, []);
+    // Reverse geocode to get full address
+    setTimeout(() => reverseGeocode(s.lat, s.lng), 500);
+  }, [reverseGeocode]);
 
   // Load Leaflet
   useEffect(() => {
@@ -231,17 +246,19 @@ export default function DeliveryPage() {
         <h1 className="text-2xl font-extrabold text-slate-900 mb-1">Delivery Address</h1>
         <p className="text-sm text-slate-400 mb-4">Search or tap on map to set your location</p>
 
-        {/* Address Search with AI Autocomplete */}
+        {/* Address Search with Autocomplete */}
         <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
           <input
             value={searchQuery}
             onChange={e => {
               setSearchQuery(e.target.value);
+              setShowSuggestions(true);
             }}
-            onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
-            placeholder="Type an address (e.g. Nha Trang, Da Nang, Hanoi...)"
+            onFocus={() => { if (searchQuery.length >= 2) setShowSuggestions(true); }}
+            placeholder="Type city or address (e.g. Nha Trang, Da Nang...)"
             className="pl-10 pr-10 w-full"
+            autoComplete="off"
           />
           {searching && (
             <Loader2 className="absolute right-10 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 animate-spin" />
@@ -253,7 +270,7 @@ export default function DeliveryPage() {
             </button>
           )}
 
-          {/* AI Suggestions dropdown */}
+          {/* Suggestions dropdown */}
           {showSuggestions && suggestions.length > 0 && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 max-h-60 overflow-y-auto">
               {suggestions.map((s, i) => (
@@ -263,9 +280,9 @@ export default function DeliveryPage() {
                   className="w-full text-left px-4 py-2.5 hover:bg-blue-50 transition-colors flex items-start gap-2"
                 >
                   <MapPin className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-sm font-semibold text-slate-900">{s.name}</p>
-                    <p className="text-xs text-slate-400">{s.display_name}</p>
+                    <p className="text-xs text-slate-400 truncate">{s.display_name}</p>
                   </div>
                 </button>
               ))}
@@ -276,7 +293,6 @@ export default function DeliveryPage() {
         {/* Map */}
         <div ref={mapRef} className="w-full h-64 rounded-2xl border border-slate-200 mb-4 z-0" />
 
-        {/* Use current location */}
         <button
           onClick={() => {
             if (navigator.geolocation && mapInstanceRef.current && markerRef.current) {
@@ -295,7 +311,6 @@ export default function DeliveryPage() {
           <Navigation className="w-4 h-4" /> Use current location
         </button>
 
-        {/* Address display */}
         <div className="card p-3 mb-3">
           <div className="flex items-start gap-2">
             <MapPin className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
@@ -314,7 +329,6 @@ export default function DeliveryPage() {
           className="w-full mb-4"
         />
 
-        {/* Order Summary */}
         <div className="card p-4 mb-4">
           <h3 className="text-sm font-bold text-slate-900 mb-3">Order Summary</h3>
           <div className="space-y-2">
