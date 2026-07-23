@@ -8,16 +8,16 @@ function shortenAddress(addr: string) {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
-// Wallet logo files (local SVGs)
+// Wallet logo files (local PNGs)
 const WALLET_LOGOS: Record<string, string> = {
-  MetaMask: '/wallets/metamask.svg',
-  'Coinbase Wallet': '/wallets/coinbase.svg',
-  WalletConnect: '/wallets/walletconnect.svg',
-  OKX: '/wallets/okx.svg',
-  Rabby: '/wallets/rabby.svg',
-  'Binance Wallet': '/wallets/binance.svg',
-  'Base Account': '/wallets/base.svg',
-  Injected: '/wallets/injected.svg',
+  MetaMask: '/wallets/metamask.png',
+  'Coinbase Wallet': '/wallets/coinbase.png',
+  WalletConnect: '/wallets/walletconnect.png',
+  OKX: '/wallets/okx.png',
+  Rabby: '/wallets/rabby.png',
+  'Binance Wallet': '/wallets/binance.png',
+  'Base Account': '/wallets/base.png',
+  Injected: '/wallets/injected.png',
 };
 
 const WALLET_DESC: Record<string, string> = {
