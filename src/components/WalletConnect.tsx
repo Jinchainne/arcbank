@@ -1,5 +1,5 @@
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from 'wagmi';
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Wallet, ChevronDown, Copy, ExternalLink, LogOut, Check, AlertTriangle, X, Loader2 } from 'lucide-react';
 import { arcTestnet } from '../config/chains';
 
@@ -8,19 +8,100 @@ function shortenAddress(addr: string) {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
-// Real wallet logo SVGs (official brand assets)
-const WALLET_LOGOS: Record<string, string> = {
-  MetaMask: 'https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg',
-  'Coinbase Wallet': 'https://altcoinsbox.com/wp-content/uploads/2023/03/coinbase-wallet-logo.png',
-  WalletConnect: 'https://altcoinsbox.com/wp-content/uploads/2023/01/wallet-connect-logo.png',
-  OKX: 'https://static.okx.com/cdn/assets/imgs/241/EB28E8B0B60E7E58.png',
-  Rabby: 'https://rabby.io/assets/images/logo.png',
-  'Binance Wallet': 'https://altcoinsbox.com/wp-content/uploads/2023/01/binance-logo.png',
-  'Base Account': 'https://altcoinsbox.com/wp-content/uploads/2023/02/base-logo.png',
-  'Trust Wallet': 'https://trustwallet.com/assets/images/media/assets/TWT.png',
-  'Brave Wallet': 'https://brave.com/static-assets/images/brave-logo-sans-text.svg',
-  Injected: '',
-};
+// Inline SVG logos for each wallet (no external dependencies)
+function WalletIcon({ name, size = 44 }: { name: string; size?: number }) {
+  const s = size;
+  const r = 10; // border radius
+
+  const logos: Record<string, React.ReactNode> = {
+    MetaMask: (
+      <svg width={s} height={s} viewBox="0 0 100 100" fill="none">
+        <rect width="100" height="100" rx={r} fill="#F6851B"/>
+        <path d="M82 25L55 42l5-12z" fill="#E2761B" stroke="#E2761B" strokeWidth=".5"/>
+        <path d="M18 25l27 17-5-12z" fill="#E4761B" stroke="#E4761B" strokeWidth=".5"/>
+        <path d="M78 62l-7 10 15 4 4-14z" fill="#E4761B" stroke="#E4761B" strokeWidth=".5"/>
+        <path d="M8 62l4 14 15-4-7-10z" fill="#E4761B" stroke="#E4761B" strokeWidth=".5"/>
+        <path d="M47 46l-4 6 14 6 14-6-4-6z" fill="#E4761B" stroke="#E4761B" strokeWidth=".5"/>
+        <path d="M39 72l7-10-6-3H60l-6 3 7 10z" fill="#D7C1B3"/>
+        <path d="M18 25l-3 2 17 46 6-4-1 14 13 13 20-13 1-14 6 4L85 27z" fill="#763D16"/>
+        <path d="M82 25l-17 4-5-12zM25 29l-5 12-17-4z" fill="#E4751F"/>
+        <path d="M65 72l-1 14 13 13 4-2zM35 72l-1 14-13 13-4-2z" fill="#F5841F"/>
+        <path d="M60 52l-14 6 5 10 3 10h5l3-10 5-10z" fill="#763D16"/>
+        <path d="M55 42l-4 8 4 14 8-14 4-8z" fill="#763D16"/>
+      </svg>
+    ),
+    WalletConnect: (
+      <svg width={s} height={s} viewBox="0 0 100 100" fill="none">
+        <rect width="100" height="100" rx={r} fill="#3396FF"/>
+        <path d="M30 42c12-12 31-12 43 0l2 2c1 1 1 3 0 4l-5 5c-1 1-2 1-3 0l-2-2c-8-8-21-8-29 0l-2 2c-1 1-2 1-3 0l-5-5c-1-1-1-3 0-4z" fill="white"/>
+        <path d="M70 52l3 3c1 1 1 2 0 3l-12 12c-1 1-2 1-3 0l-8-8c-.5-.5-1.4-.5-2 0l-8 8c-1 1-2 1-3 0L24 58c-1-1-1-2 0-3l3-3c1-1 2-1 3 0l8 8c.5.5 1.4.5 2 0l8-8c1-1 2-1 3 0z" fill="white"/>
+      </svg>
+    ),
+    'Coinbase Wallet': (
+      <svg width={s} height={s} viewBox="0 0 100 100" fill="none">
+        <rect width="100" height="100" rx={r} fill="#0052FF"/>
+        <circle cx="50" cy="50" r="28" fill="white"/>
+        <rect x="38" y="38" width="24" height="24" rx="4" fill="#0052FF"/>
+        <path d="M46 50h8v4h-8z" fill="white"/>
+      </svg>
+    ),
+    OKX: (
+      <svg width={s} height={s} viewBox="0 0 100 100" fill="none">
+        <rect width="100" height="100" rx={r} fill="#000000"/>
+        <rect x="18" y="18" width="26" height="26" rx="5" fill="white"/>
+        <rect x="56" y="18" width="26" height="26" rx="5" fill="white"/>
+        <rect x="18" y="56" width="26" height="26" rx="5" fill="white"/>
+        <rect x="56" y="56" width="26" height="26" rx="5" fill="white"/>
+      </svg>
+    ),
+    Rabby: (
+      <svg width={s} height={s} viewBox="0 0 100 100" fill="none">
+        <rect width="100" height="100" rx={r} fill="#6C5CE7"/>
+        <ellipse cx="38" cy="30" rx="8" ry="14" fill="white"/>
+        <ellipse cx="62" cy="30" rx="8" ry="14" fill="white"/>
+        <circle cx="50" cy="55" r="22" fill="white"/>
+        <circle cx="42" cy="50" r="4" fill="#6C5CE7"/>
+        <circle cx="58" cy="50" r="4" fill="#6C5CE7"/>
+        <ellipse cx="50" cy="58" rx="3" ry="2" fill="#6C5CE7"/>
+        <path d="M44 62c2 3 10 3 12 0" stroke="#6C5CE7" strokeWidth="2" fill="none"/>
+      </svg>
+    ),
+    'Binance Wallet': (
+      <svg width={s} height={s} viewBox="0 0 100 100" fill="none">
+        <rect width="100" height="100" rx={r} fill="#F0B90B"/>
+        <path d="M50 22l-8 8-12-12-8 8 20 20 20-20-8-8-12 12z" fill="white"/>
+        <path d="M20 50l8-8 8 8-8 8z" fill="white"/>
+        <path d="M64 42l8 8-8 8-8-8z" fill="white"/>
+        <path d="M42 42l8-8 8 8-8 8z" fill="white"/>
+        <path d="M50 58l-8 8-12-12-8 8 20 20 20-20-8-8-12 12z" fill="white"/>
+      </svg>
+    ),
+    'Base Account': (
+      <svg width={s} height={s} viewBox="0 0 100 100" fill="none">
+        <rect width="100" height="100" rx={r} fill="#0052FF"/>
+        <circle cx="50" cy="50" r="25" fill="white"/>
+        <path d="M50 25a25 25 0 010 50V25z" fill="#0052FF"/>
+      </svg>
+    ),
+    Injected: (
+      <svg width={s} height={s} viewBox="0 0 100 100" fill="none">
+        <rect width="100" height="100" rx={r} fill="#6366F1"/>
+        <path d="M50 25l20 35H30z" fill="white"/>
+        <circle cx="50" cy="48" r="5" fill="#6366F1"/>
+      </svg>
+    ),
+  };
+
+  const logo = logos[name];
+  if (logo) return <div className="rounded-xl overflow-hidden" style={{ width: s, height: s }}>{logo}</div>;
+
+  // Fallback: first letter
+  return (
+    <div style={{ width: s, height: s }} className="rounded-xl bg-slate-100 flex items-center justify-center">
+      <span className="text-xl font-bold text-slate-500">{name.charAt(0)}</span>
+    </div>
+  );
+}
 
 const WALLET_DESC: Record<string, string> = {
   MetaMask: 'Browser extension wallet',
@@ -30,8 +111,6 @@ const WALLET_DESC: Record<string, string> = {
   Rabby: 'Rabby browser extension',
   'Binance Wallet': 'Binance Web3 wallet',
   'Base Account': 'Base network wallet',
-  'Trust Wallet': 'Trust Wallet mobile app',
-  'Brave Wallet': 'Built into Brave browser',
   Injected: 'Browser injected wallet',
 };
 
@@ -39,14 +118,10 @@ const WALLET_DESC: Record<string, string> = {
 async function forceSwitchToArc() {
   const ethereum = (window as any).ethereum;
   if (!ethereum) return;
-  const arcChainId = '0x4cf3a2'; // 5042002
+  const arcChainId = '0x4cf3a2';
   try {
-    await ethereum.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: arcChainId }],
-    });
+    await ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: arcChainId }] });
   } catch (e: any) {
-    // Chain not added yet → add it first
     if (e.code === 4902 || e.message?.includes('Unrecognized') || e.message?.includes('not found')) {
       try {
         await ethereum.request({
@@ -66,34 +141,6 @@ async function forceSwitchToArc() {
   }
 }
 
-function WalletLogo({ name, size = 44 }: { name: string; size?: number }) {
-  const logoUrl = WALLET_LOGOS[name];
-  const initial = name === 'Injected' ? '💉' : name.charAt(0);
-
-  if (!logoUrl) {
-    return (
-      <div style={{ width: size, height: size }}
-        className="rounded-xl bg-slate-100 flex items-center justify-center text-xl font-bold text-slate-400">
-        {initial}
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ width: size, height: size }} className="rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center">
-      <img src={logoUrl} alt={name} className="w-[70%] h-[70%] object-contain"
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-          target.style.display = 'none';
-          const parent = target.parentElement;
-          if (parent) {
-            parent.innerHTML = `<span style="font-size:${size * 0.45}px">${initial}</span>`;
-          }
-        }} />
-    </div>
-  );
-}
-
 export default function WalletConnect() {
   const { address, isConnected, chain } = useAccount();
   const { connect, connectors, isPending } = useConnect();
@@ -106,19 +153,16 @@ export default function WalletConnect() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const hasTriedSwitch = useRef(false);
 
-  // Auto-switch to Arc Testnet after connecting
   useEffect(() => {
     if (isConnected && chain && chain.id !== arcTestnet.id && !hasTriedSwitch.current) {
       hasTriedSwitch.current = true;
       setSwitching(true);
-      // Try wagmi first, then raw RPC
       try { switchChain({ chainId: arcTestnet.id }); } catch {}
       forceSwitchToArc().finally(() => {
         setSwitching(false);
         setTimeout(() => { hasTriedSwitch.current = false; }, 5000);
       });
     }
-    // If already on correct chain, close modal
     if (isConnected && chain && chain.id === arcTestnet.id) {
       setShowModal(false);
     }
@@ -151,7 +195,6 @@ export default function WalletConnect() {
     return (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
-          {/* Header */}
           <div className="px-6 pt-6 pb-4 text-center relative">
             <button onClick={() => setShowModal(false)}
               className="absolute top-4 right-4 p-1 hover:bg-slate-100 rounded-lg">
@@ -164,29 +207,22 @@ export default function WalletConnect() {
             <p className="text-sm text-slate-400 mt-1">Connect wallet to pay with USDC on Arc Testnet</p>
           </div>
 
-          {/* Wallet List */}
           <div className="px-6 pb-4 space-y-2">
             {connectors.map(connector => (
               <button key={connector.uid}
-                onClick={() => {
-                  connect({ connector });
-                  // Don't close modal yet - let the chain switch effect handle it
-                }}
+                onClick={() => { connect({ connector }); }}
                 disabled={isPending}
                 className="w-full flex items-center gap-4 p-4 rounded-2xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all text-left group">
-                <WalletLogo name={connector.name} />
+                <WalletIcon name={connector.name} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-slate-900">{connector.name}</p>
                   <p className="text-[11px] text-slate-400">{WALLET_DESC[connector.name] || 'Connect wallet'}</p>
                 </div>
-                {isPending && (
-                  <Loader2 className="w-4 h-4 text-blue-500 animate-spin flex-shrink-0" />
-                )}
+                {isPending && <Loader2 className="w-4 h-4 text-blue-500 animate-spin flex-shrink-0" />}
               </button>
             ))}
           </div>
 
-          {/* Footer */}
           <div className="px-6 pb-6 flex items-center gap-2 justify-center">
             <div className="w-4 h-4 rounded bg-emerald-100 flex items-center justify-center">
               <Check className="w-3 h-3 text-emerald-600" />
@@ -211,7 +247,7 @@ export default function WalletConnect() {
     );
   }
 
-  // ═══════ WRONG CHAIN — show switch button ═══════
+  // ═══════ WRONG CHAIN ═══════
   if (isWrongChain) {
     return (
       <button onClick={() => {
@@ -221,11 +257,7 @@ export default function WalletConnect() {
       }}
         disabled={switching}
         className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 transition-all">
-        {switching ? (
-          <Loader2 className="w-4 h-4 text-amber-500 animate-spin" />
-        ) : (
-          <AlertTriangle className="w-4 h-4 text-amber-500" />
-        )}
+        {switching ? <Loader2 className="w-4 h-4 text-amber-500 animate-spin" /> : <AlertTriangle className="w-4 h-4 text-amber-500" />}
         <span className="text-xs font-semibold text-amber-700">
           {switching ? 'Switching to Arc...' : `Switch to Arc (on ${chain?.name})`}
         </span>
@@ -233,7 +265,7 @@ export default function WalletConnect() {
     );
   }
 
-  // ═══════ CONNECTED — correct chain ═══════
+  // ═══════ CONNECTED ═══════
   return (
     <div className="relative" ref={dropdownRef}>
       <button onClick={() => setOpen(!open)}
@@ -247,7 +279,6 @@ export default function WalletConnect() {
 
       {open && (
         <div className="absolute right-0 top-12 w-72 bg-white rounded-2xl shadow-xl border border-slate-200 z-50 overflow-hidden">
-          {/* Connected Info */}
           <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 border-b border-slate-100">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-sm font-bold text-white shadow-md">
@@ -271,7 +302,6 @@ export default function WalletConnect() {
             )}
           </div>
 
-          {/* Actions */}
           <div className="p-2">
             <button onClick={copyAddress}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 text-left transition-colors">
