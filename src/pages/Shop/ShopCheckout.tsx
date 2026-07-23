@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAccount } from 'wagmi';
 import { useShop, MERCHANT_ADDRESS, generateOrderCode, type DeliveryAddress } from '../../hooks/useShop';
+import { useAgent } from '../../hooks/useAgent';
 import { useSendUSDC, useUSDCBalance } from '../../hooks/useOnChain';
 import { formatCurrency, shortenAddress } from '../../utils/format';
 import WalletConnect from '../../components/WalletConnect';
@@ -14,6 +15,7 @@ export default function ShopCheckout() {
   const { cart, cartTotal, cartCount, updateQuantity, removeFromCart, clearCart, saveOrder, updateOrderStatus } = useShop();
   const { balance } = useUSDCBalance();
   const { send, hash, isPending, isConfirming, isSuccess, error: sendError } = useSendUSDC();
+  const { processOrder, dispatchDelivery } = useAgent();
   const [step, setStep] = useState<'review' | 'pay' | 'done'>('review');
   const [orderId, setOrderId] = useState('');
   const [showQR, setShowQR] = useState(false);
@@ -69,6 +71,12 @@ export default function ShopCheckout() {
   useEffect(() => {
     if (isSuccess && orderId) {
       updateOrderStatus(orderId, 'confirmed', hash);
+      // Trigger agent processing
+      const itemNames = cart.map(i => i.product.name);
+      processOrder(itemNames, grandTotal);
+      if (delivery) {
+        dispatchDelivery(orderId, delivery.address);
+      }
       clearCart();
       if (delivery) {
         setTimeout(() => updateOrderStatus(orderId, 'preparing'), 5000);
