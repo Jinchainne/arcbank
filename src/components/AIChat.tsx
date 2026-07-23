@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Loader2, User } from 'lucide-react';
+import { X, Send, Loader2, User } from 'lucide-react';
 
 const MIMO_API = 'https://api.xiaomimimo.com/v1/chat/completions';
 const MIMO_KEY = 'sk-szsjdjw70m8t5bwy8tgx4n0taa4egpnicnidvpt3im9exf3l';
@@ -77,9 +77,10 @@ Keep responses short and helpful. Always suggest specific items with prices.`
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-full flex items-center justify-center shadow-lg shadow-blue-200 hover:shadow-xl hover:scale-105 transition-all z-50"
+          className="fixed bottom-6 right-6 w-16 h-16 rounded-full overflow-hidden shadow-lg shadow-amber-200 hover:shadow-xl hover:scale-110 transition-all z-50 border-3 border-amber-400 cursor-pointer"
+          style={{ border: '3px solid #f59e0b' }}
         >
-          <MessageCircle className="w-6 h-6 text-white" />
+          <img src="/agent.png" alt="AI Assistant" className="w-full h-full object-cover" />
         </button>
       )}
 
