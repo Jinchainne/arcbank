@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 
 export interface Product {
   id: string;
@@ -217,6 +217,24 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       return saved ? JSON.parse(saved) : PRODUCTS;
     } catch { return PRODUCTS; }
   });
+
+  // Fetch latest products from server on mount
+  useEffect(() => {
+    fetch('/data/products.json')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.products?.length) {
+          // Merge: server products as base, localStorage overrides on top
+          const localRaw = localStorage.getItem('arcbank_products');
+          if (!localRaw) {
+            // No local changes - use server data directly
+            setProducts(data.products);
+          }
+          // If local changes exist, keep them (admin is editing)
+        }
+      })
+      .catch(() => {}); // Silently fail - use hardcoded defaults
+  }, []);
 
   const persistProducts = useCallback((updated: Product[]) => {
     setProducts(updated);

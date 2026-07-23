@@ -690,6 +690,8 @@ function ProductsTab({ products, onAdd, onUpdate, onDelete }: {
 // ═══════ BACKUP TAB ═══════
 function BackupTab({ products, orders }: { products: any[]; orders: any[] }) {
   const [importing, setImporting] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [publishStatus, setPublishStatus] = useState<string | null>(null);
   const [lastBackup, setLastBackup] = useState<string | null>(() => localStorage.getItem('arcbank_last_backup'));
 
   const exportBackup = () => {
@@ -762,9 +764,60 @@ function BackupTab({ products, orders }: { products: any[]; orders: any[] }) {
     e.target.value = '';
   };
 
+  const publishToSite = async () => {
+    const prods = JSON.parse(localStorage.getItem('arcbank_products') || '[]');
+    if (!prods.length) { alert('No products to publish'); return; }
+    if (!window.confirm(`Publish ${prods.length} products to live site?\n\nThis will update https://arcbank.vercel.app/shop for all visitors.`)) return;
+
+    setPublishing(true);
+    setPublishStatus(null);
+    try {
+      const resp = await fetch('/api/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ products: prods }),
+      });
+      const data = await resp.json();
+      if (data.success) {
+        setPublishStatus('Published! Changes will be live in ~30 seconds.');
+        localStorage.setItem('arcbank_last_publish', new Date().toLocaleString());
+      } else {
+        setPublishStatus('Error: ' + (data.error || 'Unknown error'));
+      }
+    } catch (err) {
+      setPublishStatus('Error: ' + (err as Error).message);
+    }
+    setPublishing(false);
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-bold text-slate-900">Data Backup & Restore</h2>
+
+      {/* Publish to Live Site */}
+      <div className="card p-6 border-2 border-green-200 bg-green-50/50">
+        <h3 className="text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
+          <svg className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+          Publish to Live Site
+        </h3>
+        <p className="text-xs text-slate-500 mb-3">
+          Push your current products to <strong>arcbank.vercel.app/shop</strong> so all visitors see the latest changes.
+        </p>
+        <button onClick={publishToSite} disabled={publishing}
+          className="btn-primary !bg-green-600 hover:!bg-green-700 !text-sm">
+          {publishing ? (
+            <span className="flex items-center gap-2">
+              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Publishing...
+            </span>
+          ) : 'Publish Products to Site'}
+        </button>
+        {publishStatus && (
+          <p className={`text-xs mt-2 ${publishStatus.startsWith('Error') ? 'text-red-600' : 'text-green-600'}`}>
+            {publishStatus}
+          </p>
+        )}
+      </div>
 
       {/* Export section */}
       <div className="card p-6">
