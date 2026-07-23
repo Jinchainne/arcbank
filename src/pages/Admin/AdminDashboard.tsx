@@ -60,11 +60,11 @@ export default function AdminDashboard() {
             </div>
             <div>
               <h1 className="text-lg font-bold">Admin Panel</h1>
-              <p className="text-xs text-slate-400">Quản lý Coffee House</p>
+              <p className="text-xs text-slate-400">Coffee House Management</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/shop')} className="text-xs text-slate-400 hover:text-white">Xem Shop →</button>
+            <button onClick={() => navigate('/shop')} className="text-xs text-slate-400 hover:text-white">View Shop →</button>
             <button onClick={handleLogout} className="flex items-center gap-1.5 text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg transition-colors">
               <LogOut className="w-3.5 h-3.5" /> Logout
             </button>
@@ -95,7 +95,7 @@ export default function AdminDashboard() {
               <StatCard label="Total Revenue" value={formatCurrency(totalRevenue)} icon={DollarSign} color="blue" />
               <StatCard label="Total Expenses" value={formatCurrency(totalExpense)} icon={TrendingDown} color="red" />
               <StatCard label="Profit" value={formatCurrency(profit)} icon={TrendingUp} color={profit >= 0 ? 'green' : 'red'} />
-              <StatCard label="Đơn hàng" value={totalOrders.toString()} icon={ShoppingCart} color="purple" />
+              <StatCard label="Total Orders" value={totalOrders.toString()} icon={ShoppingCart} color="purple" />
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
@@ -148,7 +148,7 @@ export default function AdminDashboard() {
             {orders.length === 0 ? (
               <div className="card p-8 text-center">
                 <Package className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                <p className="text-sm text-slate-500">No orders yet nào</p>
+                <p className="text-sm text-slate-500">No orders yet</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -223,14 +223,14 @@ export default function AdminDashboard() {
                 <p className="text-xs text-slate-400 mt-1">Value-added tax on revenue</p>
               </div>
               <div className="card p-5 border-l-4 border-amber-500">
-                <p className="text-xs text-slate-500 mb-1">TNDN (20%)</p>
+                <p className="text-xs text-slate-500 mb-1">Corporate Tax (20%)</p>
                 <p className="text-2xl font-extrabold text-slate-900">${corporateTax.toFixed(2)}</p>
                 <p className="text-xs text-slate-400 mt-1">Corporate income tax</p>
               </div>
               <div className="card p-5 border-l-4 border-green-500">
-                <p className="text-xs text-slate-500 mb-1">Profit sau thuế</p>
+                <p className="text-xs text-slate-500 mb-1">Net Profit</p>
                 <p className="text-2xl font-extrabold text-green-600">${netProfit.toFixed(2)}</p>
-                <p className="text-xs text-slate-400 mt-1">Profit ròng sau thuế</p>
+                <p className="text-xs text-slate-400 mt-1">After tax deduction</p>
               </div>
             </div>
 
@@ -247,7 +247,7 @@ export default function AdminDashboard() {
                   <span className="font-bold text-red-600">-${totalExpense.toFixed(2)}</span>
                 </div>
                 <div className="border-t border-slate-200 pt-2 flex justify-between">
-                  <span className="text-slate-900 font-medium">Profit trước thuế</span>
+                  <span className="text-slate-900 font-medium">Profit Before Tax</span>
                   <span className="font-bold">${profit.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-blue-600">
@@ -255,11 +255,11 @@ export default function AdminDashboard() {
                   <span className="font-bold">-${vatAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-amber-600">
-                  <span>TNDN (20% × ${taxableIncome.toFixed(2)})</span>
+                  <span>Corporate Tax (20% × ${taxableIncome.toFixed(2)})</span>
                   <span className="font-bold">-${corporateTax.toFixed(2)}</span>
                 </div>
                 <div className="border-t-2 border-slate-900 pt-2 flex justify-between text-lg">
-                  <span className="font-extrabold">Profit sau thuế</span>
+                  <span className="font-extrabold">Net Profit</span>
                   <span className="font-extrabold text-green-600">${netProfit.toFixed(2)}</span>
                 </div>
               </div>
@@ -270,11 +270,11 @@ export default function AdminDashboard() {
               <h3 className="text-sm font-bold text-slate-900 mb-4">Vietnam Tax Reference Table</h3>
               <div className="space-y-2 text-sm">
                 <TaxRow name="VAT (Thuế GTGT)" rate="10%" desc="Standard rate for goods/services" />
-                <TaxRow name="Thuế TNDN" rate="20%" desc="Corporate income tax" />
-                <TaxRow name="Thuế TNCN (lương)" rate="5%-35%" desc="Progressive, 5% cho thu nhập ≤ 5tr/tháng" />
-                <TaxRow name="Thuế môn bài" rate="1-3 triệu/năm" desc="Based on registered capital" />
-                <TaxRow name="BHXH (công ty)" rate="17.5%" desc="Social insurance (employer)" />
-                <TaxRow name="BHXH (nhân viên)" rate="10.5%" desc="Social insurance (employee)" />
+                <TaxRow name="Corporate Income Tax" rate="20%" desc="Corporate income tax" />
+                <TaxRow name="Personal Income Tax" rate="5%-35%" desc="Progressive, 5% for income ≤ 5M VND/month" />
+                <TaxRow name="License Fee" rate="1-3M VND/year" desc="Based on registered capital" />
+                <TaxRow name="Social Insurance (Employer)" rate="17.5%" desc="Social insurance (employer)" />
+                <TaxRow name="Social Insurance (Employee)" rate="10.5%" desc="Social insurance (employee)" />
                 <TaxRow name="BHYT" rate="4.5%" desc="Health insurance (3%+1.5%)" />
                 <TaxRow name="BHTN" rate="1%" desc="Unemployment insurance" />
               </div>
@@ -342,7 +342,7 @@ function FinanceTab() {
       {/* Add form */}
       {showForm && (
         <form onSubmit={handleSubmit} className="card p-5 space-y-3 border-2 border-blue-200">
-          <h3 className="text-sm font-bold text-slate-900">Add Entry thu/chi</h3>
+          <h3 className="text-sm font-bold text-slate-900">Add Income / Expense Entry</h3>
           <div className="flex gap-2">
             <button type="button" onClick={() => setType('income')}
               className={`flex-1 py-2 rounded-lg text-sm font-semibold ${type === 'income' ? 'bg-green-100 text-green-700 border-2 border-green-300' : 'bg-slate-100 text-slate-500'}`}>
@@ -364,8 +364,8 @@ function FinanceTab() {
           </div>
           <input value={note} onChange={e => setNote(e.target.value)} placeholder="Note (optional)" />
           <div className="flex gap-2">
-            <button type="button" onClick={() => setShowForm(false)} className="btn-secondary flex-1">Hủy</button>
-            <button type="submit" disabled={!category || !description || !amount} className="btn-primary flex-1">Lưu</button>
+            <button type="button" onClick={() => setShowForm(false)} className="btn-secondary flex-1">Cancel</button>
+            <button type="submit" disabled={!category || !description || !amount} className="btn-primary flex-1">Save</button>
           </div>
         </form>
       )}
@@ -375,7 +375,7 @@ function FinanceTab() {
         {(['all', 'income', 'expense'] as const).map(t => (
           <button key={t} onClick={() => setFilterType(t)}
             className={`px-3 py-1.5 rounded-full text-xs font-semibold ${filterType === t ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}`}>
-            {t === 'all' ? 'Tất cả' : t === 'income' ? 'Thu' : 'Chi'}
+            {t === 'all' ? 'All' : t === 'income' ? 'Income' : 'Expense'}
           </button>
         ))}
       </div>
@@ -385,11 +385,11 @@ function FinanceTab() {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-slate-50 text-xs text-slate-500 uppercase">
-              <th className="text-left p-3">Ngày</th>
-              <th className="text-left p-3">Loại</th>
-              <th className="text-left p-3">Danh mục</th>
+              <th className="text-left p-3">Date</th>
+              <th className="text-left p-3">Type</th>
+              <th className="text-left p-3">Category</th>
               <th className="text-left p-3">Description</th>
-              <th className="text-right p-3">Số tiền</th>
+              <th className="text-right p-3">Amount</th>
               <th className="p-3 w-10"></th>
             </tr>
           </thead>
@@ -399,7 +399,7 @@ function FinanceTab() {
                 <td className="p-3 text-slate-500 text-xs">{f.date}</td>
                 <td className="p-3">
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${f.type === 'income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    {f.type === 'income' ? 'Thu' : 'Chi'}
+                    {f.type === 'income' ? 'Income' : 'Expense'}
                   </span>
                 </td>
                 <td className="p-3 text-slate-700">{f.category}</td>
@@ -433,10 +433,11 @@ function ProductsTab({ products, onAdd, onUpdate, onDelete }: {
 }) {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editField, setEditField] = useState<'price' | 'image' | null>(null);
+  const [editField, setEditField] = useState<'price' | 'image' | 'name' | null>(null);
   const [editValue, setEditValue] = useState('');
   const [form, setForm] = useState({ name: '', price: '', category: '', image: '', description: '', brand: '' });
   const [filterCat, setFilterCat] = useState('All');
+  const [uploading, setUploading] = useState(false);
 
   const allCategories = [...new Set(products.map(p => p.category))].sort();
   const filtered = filterCat === 'All' ? products : products.filter(p => p.category === filterCat);
@@ -456,7 +457,7 @@ function ProductsTab({ products, onAdd, onUpdate, onDelete }: {
     setShowForm(false);
   };
 
-  const startEdit = (id: string, field: 'price' | 'image', current: string) => {
+  const startEdit = (id: string, field: 'price' | 'image' | 'name', current: string) => {
     setEditingId(id);
     setEditField(field);
     setEditValue(current);
@@ -468,6 +469,9 @@ function ProductsTab({ products, onAdd, onUpdate, onDelete }: {
       const num = parseFloat(editValue);
       if (isNaN(num) || num < 0) return;
       onUpdate(editingId, { price: num });
+    } else if (editField === 'name') {
+      if (!editValue.trim()) return;
+      onUpdate(editingId, { name: editValue.trim() });
     } else {
       onUpdate(editingId, { image: editValue });
     }
@@ -478,6 +482,23 @@ function ProductsTab({ products, onAdd, onUpdate, onDelete }: {
   const cancelEdit = () => {
     setEditingId(null);
     setEditField(null);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, productId?: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { alert('Image must be under 2MB'); return; }
+    setUploading(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      if (productId) { onUpdate(productId, { image: base64 }); }
+      else { setForm(f => ({ ...f, image: base64 })); }
+      setUploading(false);
+    };
+    reader.onerror = () => { alert('Failed to read file'); setUploading(false); };
+    reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
   return (
@@ -516,8 +537,18 @@ function ProductsTab({ products, onAdd, onUpdate, onDelete }: {
               placeholder="Category *" required />
             <input value={form.brand} onChange={e => setForm(f => ({ ...f, brand: e.target.value }))}
               placeholder="Brand" />
-            <input value={form.image} onChange={e => setForm(f => ({ ...f, image: e.target.value }))}
-              placeholder="Image URL" className="sm:col-span-2" />
+            <div className="sm:col-span-2 space-y-2">
+              <input value={form.image.startsWith('data:') ? '(uploaded image)' : form.image} onChange={e => setForm(f => ({ ...f, image: e.target.value }))}
+                placeholder="Image URL (or upload below)" />
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg cursor-pointer text-xs font-medium text-slate-600 transition-colors">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  {uploading ? 'Uploading...' : 'Upload from Computer'}
+                  <input type="file" accept="image/*" className="hidden" onChange={e => handleFileUpload(e)} disabled={uploading} />
+                </label>
+                {form.image && <img src={form.image} alt="Preview" className="w-10 h-10 rounded object-cover border border-slate-200" />}
+              </div>
+            </div>
             <input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
               placeholder="Description" className="sm:col-span-2" />
           </div>
@@ -552,15 +583,31 @@ function ProductsTab({ products, onAdd, onUpdate, onDelete }: {
                         className="!text-[10px] !p-1 w-28" onKeyDown={e => e.key === 'Enter' && saveEdit()} />
                       <button onClick={saveEdit} className="text-green-600"><Check className="w-3 h-3" /></button>
                       <button onClick={cancelEdit} className="text-slate-400"><X className="w-3 h-3" /></button>
+                      <label className="text-blue-500 cursor-pointer" title="Upload from computer">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        <input type="file" accept="image/*" className="hidden" onChange={e => { handleFileUpload(e, p.id); cancelEdit(); }} />
+                      </label>
                     </div>
                   ) : (
                     <img src={p.image} alt={p.name} className="w-10 h-10 rounded object-cover cursor-pointer hover:ring-2 hover:ring-blue-300"
-                      onClick={() => startEdit(p.id, 'image', p.image)} title="Click to edit image URL" />
+                      onClick={() => startEdit(p.id, 'image', p.image)} title="Click to edit image" />
                   )}
                 </td>
                 {/* Name + Description */}
                 <td className="p-3">
-                  <p className="font-semibold text-slate-900">{p.name}</p>
+                  {editingId === p.id && editField === 'name' ? (
+                    <div className="flex items-center gap-1">
+                      <input value={editValue} onChange={e => setEditValue(e.target.value)}
+                        className="!text-sm !p-1 flex-1" onKeyDown={e => e.key === 'Enter' && saveEdit()} autoFocus />
+                      <button onClick={saveEdit} className="text-green-600"><Check className="w-3.5 h-3.5" /></button>
+                      <button onClick={cancelEdit} className="text-slate-400"><X className="w-3.5 h-3.5" /></button>
+                    </div>
+                  ) : (
+                    <p className="font-semibold text-slate-900 cursor-pointer hover:text-blue-600"
+                      onClick={() => startEdit(p.id, 'name', p.name)} title="Click to edit name">
+                      {p.name}
+                    </p>
+                  )}
                   <p className="text-[10px] text-slate-400 truncate max-w-[200px]">{p.description}</p>
                 </td>
                 {/* Category */}
@@ -643,12 +690,12 @@ function StatusIcon({ status }: { status: string }) {
 
 function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { label: string; cls: string }> = {
-    pending: { label: 'Chờ', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
-    confirmed: { label: 'Xác nhận', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-    preparing: { label: 'Chuẩn bị', cls: 'bg-blue-50 text-blue-700 border-blue-200' },
-    shipping: { label: 'Giao hàng', cls: 'bg-purple-50 text-purple-700 border-purple-200' },
-    delivered: { label: 'Đã giao', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-    failed: { label: 'Thất bại', cls: 'bg-red-50 text-red-700 border-red-200' },
+    pending: { label: 'Pending', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
+    confirmed: { label: 'Confirmed', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    preparing: { label: 'Preparing', cls: 'bg-blue-50 text-blue-700 border-blue-200' },
+    shipping: { label: 'Shipping', cls: 'bg-purple-50 text-purple-700 border-purple-200' },
+    delivered: { label: 'Delivered', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    failed: { label: 'Failed', cls: 'bg-red-50 text-red-700 border-red-200' },
   };
   const c = config[status] || config.pending;
   return <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${c.cls}`}>{c.label}</span>;
