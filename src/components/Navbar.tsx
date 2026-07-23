@@ -14,7 +14,7 @@ export default function Navbar() {
     { label: 'Menu', path: '/shop', icon: Coffee },
     { label: 'Orders', path: '/shop/orders', icon: ClipboardList },
     { label: 'Track', path: '/shop/track', icon: MapPin },
-    { label: 'Agents', path: '/admin/agents', icon: Bot },
+    { label: 'Agents', path: '/admin/dashboard', icon: Bot },
     { label: 'Admin', path: '/admin', icon: Shield },
   ];
 
