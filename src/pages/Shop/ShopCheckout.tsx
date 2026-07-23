@@ -5,7 +5,8 @@ import { useShop, MERCHANT_ADDRESS, type DeliveryAddress } from '../../hooks/use
 import { useSendUSDC, useUSDCBalance } from '../../hooks/useOnChain';
 import { formatCurrency, shortenAddress } from '../../utils/format';
 import WalletConnect from '../../components/WalletConnect';
-import { ArrowLeft, Check, ExternalLink, AlertCircle, Trash2, Plus, Minus, MapPin, Truck } from 'lucide-react';
+import { ArrowLeft, Check, ExternalLink, AlertCircle, Trash2, Plus, Minus, MapPin, Truck, QrCode, X } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
 export default function ShopCheckout() {
   const { isConnected, address: walletAddress } = useAccount();
@@ -15,8 +16,9 @@ export default function ShopCheckout() {
   const { send, hash, isPending, isConfirming, isSuccess, error: sendError } = useSendUSDC();
   const [step, setStep] = useState<'review' | 'pay' | 'done'>('review');
   const [orderId, setOrderId] = useState('');
+  const [showQR, setShowQR] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  // Read delivery info from sessionStorage
   const [delivery, setDelivery] = useState<DeliveryAddress | null>(null);
   const [shippingFee, setShippingFee] = useState(1.5);
 
@@ -31,6 +33,15 @@ export default function ShopCheckout() {
 
   const grandTotal = cartTotal + shippingFee;
   const insufficientBalance = grandTotal > balance;
+
+  // Payment URI for QR code (EIP-681 format)
+  const paymentURI = `ethereum:${MERCHANT_ADDRESS}@5042002?value=${(grandTotal * 1e18).toFixed(0)}&gas=200000`;
+
+  const copyAddress = () => {
+    navigator.clipboard.writeText(MERCHANT_ADDRESS);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handlePay = () => {
     const id = `ORD-${Date.now().toString(36).toUpperCase()}`;
@@ -49,31 +60,17 @@ export default function ShopCheckout() {
     setStep('pay');
   };
 
-  // Auto-dispatch shipping after payment confirmed
   useEffect(() => {
     if (isSuccess && orderId) {
       updateOrderStatus(orderId, 'confirmed', hash);
       clearCart();
-
-      // Simulate shipping dispatch (in real app, this calls a shipping API)
       if (delivery) {
-        setTimeout(() => {
-          updateOrderStatus(orderId, 'preparing');
-          // Simulate driver pickup
-          setTimeout(() => {
-            updateOrderStatus(orderId, 'shipping');
-            // Simulate delivery
-            setTimeout(() => {
-              updateOrderStatus(orderId, 'delivered');
-            }, 30000); // 30s demo
-          }, 15000); // 15s demo
-        }, 5000); // 5s demo
+        setTimeout(() => updateOrderStatus(orderId, 'preparing'), 5000);
+        setTimeout(() => updateOrderStatus(orderId, 'shipping'), 15000);
+        setTimeout(() => updateOrderStatus(orderId, 'delivered'), 30000);
       }
-
-      // Cleanup sessionStorage
       sessionStorage.removeItem('arcbank_delivery');
       sessionStorage.removeItem('arcbank_shipping_fee');
-
       setStep('done');
     }
     if (sendError && orderId) {
@@ -87,7 +84,7 @@ export default function ShopCheckout() {
         <div className="max-w-lg mx-auto px-4 py-8 text-center">
           <AlertCircle className="w-12 h-12 text-amber-400 mx-auto mb-4" />
           <h3 className="text-lg font-bold text-slate-900 mb-2">Connect Wallet to Pay</h3>
-          <p className="text-sm text-slate-400 mb-4">Connect MetaMask to pay with USDC on Arc Testnet</p>
+          <p className="text-sm text-slate-400 mb-4">Connect your wallet to pay with USDC on Arc Testnet</p>
           <WalletConnect />
         </div>
       </div>
@@ -107,7 +104,6 @@ export default function ShopCheckout() {
         {/* Step 1: Review */}
         {step === 'review' && (
           <div className="space-y-4">
-            {/* Delivery Address */}
             {delivery && (
               <div className="card p-4 border-blue-200 bg-blue-50">
                 <div className="flex items-start gap-2">
@@ -116,7 +112,6 @@ export default function ShopCheckout() {
                     <p className="text-xs font-bold text-blue-700 mb-1">Delivery To</p>
                     <p className="text-sm text-blue-900">{delivery.address}</p>
                     {delivery.note && <p className="text-xs text-blue-600 mt-1">📝 {delivery.note}</p>}
-                    <p className="text-[11px] text-blue-500 mt-1 font-mono">{delivery.lat.toFixed(4)}, {delivery.lng.toFixed(4)}</p>
                   </div>
                   <button onClick={() => navigate('/shop/delivery')} className="text-xs text-blue-600 hover:underline">Change</button>
                 </div>
@@ -141,7 +136,7 @@ export default function ShopCheckout() {
                     <img src={item.product.image} alt={item.product.name} className="w-12 h-12 rounded-xl object-cover" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-slate-900">{item.product.name}</p>
-                      <p className="text-xs text-slate-400">{item.product.brand} · ${item.product.price.toFixed(2)} each</p>
+                      <p className="text-xs text-slate-400">${item.product.price.toFixed(2)} each</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
@@ -193,7 +188,7 @@ export default function ShopCheckout() {
               {insufficientBalance && <p className="text-xs text-red-600 mt-1">Insufficient balance. Need {formatCurrency(grandTotal - balance)} more.</p>}
             </div>
 
-            {/* Wallet */}
+            {/* Wallet Info */}
             <div className="card p-3">
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-slate-500">From</span>
@@ -205,9 +200,15 @@ export default function ShopCheckout() {
               </div>
             </div>
 
-            <button onClick={handlePay} disabled={insufficientBalance || cartTotal <= 0} className="btn-primary w-full">
-              Pay ${grandTotal.toFixed(2)} USDC
-            </button>
+            {/* Pay Buttons */}
+            <div className="space-y-2">
+              <button onClick={handlePay} disabled={insufficientBalance || cartTotal <= 0} className="btn-primary w-full">
+                Pay ${grandTotal.toFixed(2)} USDC
+              </button>
+              <button onClick={() => setShowQR(true)} className="btn-secondary w-full flex items-center justify-center gap-2">
+                <QrCode className="w-4 h-4" /> Scan QR to Pay
+              </button>
+            </div>
           </div>
         )}
 
@@ -218,7 +219,7 @@ export default function ShopCheckout() {
               {isPending && (
                 <div className="text-center">
                   <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-sm font-bold text-blue-900">Waiting for MetaMask...</p>
+                  <p className="text-sm font-bold text-blue-900">Waiting for wallet...</p>
                   <p className="text-xs text-blue-600 mt-1">Confirm the transaction in your wallet</p>
                 </div>
               )}
@@ -281,14 +282,13 @@ export default function ShopCheckout() {
                 )}
               </div>
 
-              {/* Delivery status tracker */}
               {delivery && (
                 <div className="mt-6 pt-4 border-t border-emerald-200">
                   <p className="text-xs font-bold text-emerald-700 mb-3 uppercase tracking-wider">Delivery Status</p>
                   <div className="flex items-center justify-between px-2">
                     {['Confirmed', 'Preparing', 'Shipping', 'Delivered'].map((label, i) => {
                       const statusMap: Record<string, number> = { confirmed: 0, preparing: 1, shipping: 2, delivered: 3 };
-                      const current = statusMap['confirmed'] || 0; // Will update via real-time
+                      const current = statusMap['confirmed'] || 0;
                       const active = i <= current;
                       return (
                         <div key={label} className="flex flex-col items-center">
@@ -304,12 +304,58 @@ export default function ShopCheckout() {
               )}
             </div>
 
-            <button onClick={() => navigate('/shop')} className="btn-primary w-full">
-              Order Again
-            </button>
-            <button onClick={() => navigate('/shop/orders')} className="btn-secondary w-full">
-              View Orders
-            </button>
+            <button onClick={() => navigate('/shop')} className="btn-primary w-full">Order Again</button>
+            <button onClick={() => navigate('/shop/orders')} className="btn-secondary w-full">View Orders</button>
+          </div>
+        )}
+
+        {/* QR Code Modal */}
+        {showQR && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden">
+              <div className="px-6 pt-6 pb-2 text-center relative">
+                <button onClick={() => setShowQR(false)} className="absolute top-4 right-4 p-1 hover:bg-slate-100 rounded-lg">
+                  <X className="w-5 h-5 text-slate-400" />
+                </button>
+                <h2 className="text-xl font-extrabold text-slate-900">Scan to Pay</h2>
+                <p className="text-sm text-slate-400 mt-1">Scan QR code with your wallet app</p>
+              </div>
+
+              <div className="px-6 py-4 flex justify-center">
+                <div className="p-4 bg-white rounded-2xl border-2 border-slate-200">
+                  <QRCodeSVG
+                    value={paymentURI}
+                    size={200}
+                    level="H"
+                    includeMargin={false}
+                  />
+                </div>
+              </div>
+
+              <div className="px-6 pb-2 text-center">
+                <p className="text-xs text-slate-400 mb-2">Send <span className="font-bold text-slate-900">${grandTotal.toFixed(2)} USDC</span> to:</p>
+                <p className="text-[11px] text-slate-400 mb-1">Only send <span className="font-semibold">ARC Testnet</span> assets to this address</p>
+              </div>
+
+              <div className="px-6 pb-2">
+                <div className="bg-slate-50 rounded-xl p-3 flex items-center gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-slate-700">Merchant Address</p>
+                    <p className="text-[11px] font-mono text-slate-500 break-all">{MERCHANT_ADDRESS}</p>
+                  </div>
+                  <button onClick={copyAddress} className="flex-shrink-0 px-3 py-1.5 bg-slate-900 text-white text-xs font-semibold rounded-lg">
+                    {copied ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="px-6 pb-6">
+                <div className="bg-blue-50 rounded-xl p-3 text-center">
+                  <p className="text-xs font-bold text-blue-700">Network: Arc Testnet (Chain 5042002)</p>
+                  <p className="text-[10px] text-blue-500 mt-1">Token: USDC · Gas: ~$0.01</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
