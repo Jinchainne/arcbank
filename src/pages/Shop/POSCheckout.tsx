@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAccount } from 'wagmi';
 import { useShop, MERCHANT_ADDRESS, generateOrderCode, type DeliveryAddress } from '../../hooks/useShop';
 import { useAgent } from '../../hooks/useAgent';
+import { useSendUSDC, useUSDCBalance } from '../../hooks/useOnChain';
+import { formatCurrency } from '../../utils/format';
+import WalletConnect from '../../components/WalletConnect';
 import { QRCodeSVG } from 'qrcode.react';
-import { Check, MapPin, Truck, ArrowLeft, QrCode, Loader2, AlertCircle, ExternalLink } from 'lucide-react';
-
+import { Check, MapPin, Truck, ArrowLeft, QrCode, Loader2, AlertCircle, ExternalLink, Wallet } from 'lucide-react';
 // Poll merchant USDC balance via RPC
 async function fetchUSDCBalance(address: string): Promise<number> {
   try {
@@ -34,10 +37,14 @@ type PaymentStatus = 'waiting' | 'detecting' | 'confirmed' | 'timeout';
 
 export default function POSCheckout() {
   const navigate = useNavigate();
+  const { isConnected, address: walletAddress } = useAccount();
   const { cart, cartTotal, cartCount, clearCart, saveOrder, updateOrderStatus } = useShop();
   const { processOrder, dispatchDelivery } = useAgent();
-  const [step, setStep] = useState<'review' | 'qr' | 'done'>('review');
-  const [, setOrderId] = useState('');
+  const { send, hash, isSuccess, error: sendError } = useSendUSDC();
+  const { balance } = useUSDCBalance();
+  const [step, setStep] = useState<'review' | 'qr' | 'wallet-pay' | 'done'>('review');
+  const [, setOrderIdState] = useState('');
+  const orderIdRef = useRef('');
   const [orderCode, setOrderCode] = useState('');
   const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('waiting');
@@ -66,11 +73,49 @@ export default function POSCheckout() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Wallet payment handler
+  const handleWalletPay = useCallback(() => {
+    const id = `ORD-${Date.now().toString(36).toUpperCase()}`;
+    const code = generateOrderCode();
+    setOrderIdState(id); orderIdRef.current = id;
+    setOrderCode(code);
+    saveOrder({
+      id, code, items: cart, total: grandTotal, status: 'pending',
+      timestamp: Date.now(), merchantAddress: MERCHANT_ADDRESS,
+      customerWallet: walletAddress || '', delivery: delivery || undefined, shippingFee,
+    });
+    send(MERCHANT_ADDRESS, grandTotal.toFixed(6));
+    setStep('wallet-pay');
+  }, [cart, grandTotal, delivery, shippingFee, walletAddress, saveOrder, send]);
+
+  // Handle wallet payment success
+  useEffect(() => {
+    if (isSuccess && step === 'wallet-pay') {
+      const id = orderIdRef.current;
+      updateOrderStatus(id, 'confirmed', hash);
+      const itemNames = cart.map(i => i.product.name);
+      processOrder(itemNames, grandTotal);
+      if (delivery) dispatchDelivery(id, delivery.address);
+      clearCart();
+      sessionStorage.removeItem('arcbank_delivery');
+      sessionStorage.removeItem('arcbank_shipping_fee');
+      if (delivery) {
+        setTimeout(() => updateOrderStatus(id, 'preparing'), 5000);
+        setTimeout(() => updateOrderStatus(id, 'shipping'), 15000);
+        setTimeout(() => updateOrderStatus(id, 'delivered'), 30000);
+      }
+      setStep('done');
+    }
+    if (sendError && step === 'wallet-pay') {
+      updateOrderStatus(orderIdRef.current, 'cancelled');
+    }
+  }, [isSuccess, sendError, step, hash]);
+
   // Start payment: save order, record baseline balance, start polling
   const startPayment = useCallback(async () => {
     const id = `ORD-${Date.now().toString(36).toUpperCase()}`;
     const code = generateOrderCode();
-    setOrderId(id);
+    setOrderIdState(id); orderIdRef.current = id;
     setOrderCode(code);
     setStep('qr');
     setPaymentStatus('waiting');
@@ -223,9 +268,41 @@ export default function POSCheckout() {
               </div>
             </div>
 
-            <button onClick={startPayment} className="btn-primary w-full h-14 text-lg">
-              <QrCode className="w-5 h-5" /> Generate Payment QR
-            </button>
+            {/* Balance check if wallet connected */}
+            {isConnected && (
+              <div className={`card p-3 ${grandTotal > balance ? 'border-red-200 bg-red-50' : 'border-emerald-200 bg-emerald-50'}`}>
+                <div className="flex justify-between text-sm">
+                  <span className={grandTotal > balance ? 'text-red-700' : 'text-emerald-700'}>Your USDC Balance</span>
+                  <span className={`font-bold ${grandTotal > balance ? 'text-red-700' : 'text-emerald-700'}`}>{formatCurrency(balance)}</span>
+                </div>
+                {grandTotal > balance && <p className="text-xs text-red-600 mt-1">Insufficient balance</p>}
+              </div>
+            )}
+
+            {/* Payment Options */}
+            {isConnected ? (
+              <div className="space-y-3">
+                {/* Wallet Pay - Primary */}
+                <button onClick={handleWalletPay} disabled={grandTotal > balance}
+                  className="btn-primary w-full h-14 text-lg">
+                  <Wallet className="w-5 h-5" /> Pay ${grandTotal.toFixed(2)} USDC from Wallet
+                </button>
+                {/* QR Pay - Secondary */}
+                <button onClick={startPayment} className="btn-secondary w-full h-12">
+                  <QrCode className="w-4 h-4" /> Or Scan QR Code to Pay
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <button onClick={startPayment} className="btn-primary w-full h-14 text-lg">
+                  <QrCode className="w-5 h-5" /> Scan QR to Pay
+                </button>
+                <div className="text-center">
+                  <p className="text-xs text-slate-400 mb-2">Or connect wallet to pay directly</p>
+                  <WalletConnect />
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -307,6 +384,30 @@ export default function POSCheckout() {
             <div className="text-center text-xs text-slate-400">
               <p>Order: <span className="font-mono font-bold text-slate-600">{orderCode}</span></p>
               <p className="mt-1">Network: Arc Testnet (5042002) · Token: USDC · Fee: ~$0.01</p>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2b: Wallet Payment */}
+        {step === 'wallet-pay' && (
+          <div className="space-y-4">
+            <div className={`card p-6 border-2 ${isSuccess ? 'border-emerald-200 bg-emerald-50' : sendError ? 'border-red-200 bg-red-50' : 'border-blue-200 bg-blue-50'}`}>
+              {!isSuccess && !sendError && (
+                <div className="text-center">
+                  <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-3" />
+                  <p className="text-sm font-bold text-blue-900">Waiting for wallet...</p>
+                  <p className="text-xs text-blue-600 mt-1">Confirm the USDC transfer in your wallet</p>
+                  <p className="text-lg font-extrabold text-slate-900 mt-3">${grandTotal.toFixed(2)} USDC</p>
+                </div>
+              )}
+              {sendError && (
+                <div className="text-center">
+                  <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+                  <p className="text-sm font-bold text-red-900">Payment Failed</p>
+                  <p className="text-xs text-red-600 mt-1">{sendError.message?.slice(0, 120)}</p>
+                  <button onClick={() => setStep('review')} className="btn-secondary mt-4">Try Again</button>
+                </div>
+              )}
             </div>
           </div>
         )}
