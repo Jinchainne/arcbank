@@ -49,8 +49,10 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ password }),
       });
       if (resp.ok) {
+        const data = await resp.json();
         setIsAdmin(true);
         sessionStorage.setItem('arcbank_admin', 'true');
+        sessionStorage.setItem('arcbank_admin_token', data.token || 'ok');
         return true;
       }
       return false;

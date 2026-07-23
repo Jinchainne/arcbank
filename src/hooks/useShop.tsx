@@ -225,15 +225,26 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       .then(data => {
         if (data?.products?.length) {
           // Merge: server products as base, localStorage overrides on top
-          const localRaw = localStorage.getItem('arcbank_products');
-          if (!localRaw) {
-            // No local changes - use server data directly
+          const localOverrides = (() => {
+            try {
+              const saved = localStorage.getItem('arcbank_products');
+              return saved ? JSON.parse(saved) : null;
+            } catch { return null; }
+          })();
+          if (localOverrides) {
+            // Merge: use local overrides for matching IDs, server for the rest
+            const localMap = new Map(localOverrides.map((p: Product) => [p.id, p]));
+            const merged = data.products.map((p: Product) => localMap.get(p.id) || p);
+            // Add any local-only products (custom added)
+            const serverIds = new Set(data.products.map((p: Product) => p.id));
+            const localOnly = localOverrides.filter((p: Product) => !serverIds.has(p.id));
+            setProducts([...localOnly, ...merged]);
+          } else {
             setProducts(data.products);
           }
-          // If local changes exist, keep them (admin is editing)
         }
       })
-      .catch(() => {}); // Silently fail - use hardcoded defaults
+      .catch(() => { /* use default products */ });
   }, []);
 
   const persistProducts = useCallback((updated: Product[]) => {

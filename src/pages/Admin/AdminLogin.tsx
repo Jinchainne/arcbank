@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../hooks/useAdmin';
-import { Lock, Eye, EyeOff, Shield, Coffee, BarChart3, Receipt } from 'lucide-react';
+import { Lock, Eye, EyeOff, Coffee, BarChart3, Receipt, Shield } from 'lucide-react';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -11,10 +11,20 @@ export default function AdminLogin() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  if (isAdmin) {
-    navigate('/admin/dashboard');
-    return null;
-  }
+  // Verify session is still valid on mount
+  useEffect(() => {
+    if (isAdmin) {
+      // Verify the session token is still valid
+      const token = sessionStorage.getItem('arcbank_admin_token');
+      if (!token) {
+        // Old session without token - clear it
+        sessionStorage.removeItem('arcbank_admin');
+        window.location.reload();
+        return;
+      }
+      navigate('/admin/dashboard');
+    }
+  }, [isAdmin, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
