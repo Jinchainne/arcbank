@@ -24,14 +24,30 @@ export interface DeliveryAddress {
 
 export interface Order {
   id: string;
+  code: string; // 6-char tracking code e.g. "ARX-K7M2P"
   items: CartItem[];
   total: number;
-  status: 'pending' | 'confirmed' | 'preparing' | 'shipping' | 'delivered' | 'failed';
+  status: 'pending' | 'confirmed' | 'preparing' | 'shipping' | 'delivered' | 'cancelled';
   txHash?: string;
   timestamp: number;
   merchantAddress: string;
+  customerWallet: string;
   delivery?: DeliveryAddress;
   shippingFee: number;
+  // Status timestamps for transparency
+  confirmedAt?: number;
+  preparingAt?: number;
+  shippingAt?: number;
+  deliveredAt?: number;
+  cancelledAt?: number;
+  cancelReason?: string;
+}
+
+export function generateOrderCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = 'ARX-';
+  for (let i = 0; i < 5; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
 }
 
 export const MERCHANT_ADDRESS = '0x363700d10ca9c4809ad7034f5b21650a9a5e34bd';
@@ -190,6 +206,8 @@ interface ShopCtx {
   clearCart: () => void;
   saveOrder: (order: Order) => void;
   updateOrderStatus: (orderId: string, status: Order['status'], txHash?: string) => void;
+  getOrderByCode: (code: string) => Order | undefined;
+  cancelOrder: (orderId: string, reason: string) => void;
 }
 
 const ShopContext = createContext<ShopCtx | null>(null);
@@ -244,7 +262,24 @@ export function ShopProvider({ children }: { children: ReactNode }) {
 
   const updateOrderStatus = useCallback((orderId: string, status: Order['status'], txHash?: string) => {
     setOrders(prev => {
-      const updated = prev.map(o => o.id === orderId ? { ...o, status, txHash } : o);
+      const updated = prev.map(o => {
+        if (o.id !== orderId) return o;
+        const now = Date.now();
+        const timestampField = `${status}At` as keyof Order;
+        return { ...o, status, txHash: txHash || o.txHash, [timestampField]: now };
+      });
+      localStorage.setItem('arcbank_orders', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  const getOrderByCode = useCallback((code: string) => {
+    return orders.find(o => o.code === code.toUpperCase());
+  }, [orders]);
+
+  const cancelOrder = useCallback((orderId: string, reason: string) => {
+    setOrders(prev => {
+      const updated = prev.map(o => o.id === orderId ? { ...o, status: 'cancelled' as const, cancelledAt: Date.now(), cancelReason: reason } : o);
       localStorage.setItem('arcbank_orders', JSON.stringify(updated));
       return updated;
     });
@@ -254,7 +289,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     <ShopContext.Provider value={{
       products: PRODUCTS, categories: CATEGORIES, brands: BRANDS, cart, orders,
       cartTotal, cartCount, addToCart, removeFromCart, updateQuantity,
-      clearCart, saveOrder, updateOrderStatus,
+      clearCart, saveOrder, updateOrderStatus, getOrderByCode, cancelOrder,
     }}>
       {children}
     </ShopContext.Provider>

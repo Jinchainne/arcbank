@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAccount } from 'wagmi';
-import { useShop, MERCHANT_ADDRESS, type DeliveryAddress } from '../../hooks/useShop';
+import { useShop, MERCHANT_ADDRESS, generateOrderCode, type DeliveryAddress } from '../../hooks/useShop';
 import { useSendUSDC, useUSDCBalance } from '../../hooks/useOnChain';
 import { formatCurrency, shortenAddress } from '../../utils/format';
 import WalletConnect from '../../components/WalletConnect';
@@ -43,16 +43,22 @@ export default function ShopCheckout() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const [orderCode, setOrderCode] = useState('');
+
   const handlePay = () => {
     const id = `ORD-${Date.now().toString(36).toUpperCase()}`;
+    const code = generateOrderCode();
     setOrderId(id);
+    setOrderCode(code);
     saveOrder({
       id,
+      code,
       items: cart,
       total: grandTotal,
       status: 'pending',
       timestamp: Date.now(),
       merchantAddress: MERCHANT_ADDRESS,
+      customerWallet: walletAddress || '',
       delivery: delivery || undefined,
       shippingFee,
     });
@@ -74,7 +80,7 @@ export default function ShopCheckout() {
       setStep('done');
     }
     if (sendError && orderId) {
-      updateOrderStatus(orderId, 'failed');
+      updateOrderStatus(orderId, 'cancelled');
     }
   }, [isSuccess, sendError, orderId, hash]);
 
@@ -297,6 +303,14 @@ export default function ShopCheckout() {
               <p className="text-sm text-emerald-700 mb-4">
                 {delivery ? 'Your order is being prepared and will be delivered soon.' : 'Your order has been confirmed.'}
               </p>
+
+              {/* Order Code - PROMINENT */}
+              <div className="bg-white rounded-2xl p-4 mb-4 border-2 border-emerald-300">
+                <p className="text-xs text-emerald-600 font-bold uppercase tracking-wider mb-1">Your Order Code</p>
+                <p className="text-3xl font-extrabold text-emerald-900 font-mono tracking-wider">{orderCode}</p>
+                <p className="text-[11px] text-emerald-500 mt-2">Save this code to track your order</p>
+              </div>
+
               <div className="space-y-2 text-sm text-left">
                 <div className="flex justify-between">
                   <span className="text-emerald-600">Order ID</span>
@@ -342,8 +356,9 @@ export default function ShopCheckout() {
               )}
             </div>
 
-            <button onClick={() => navigate('/shop')} className="btn-primary w-full">Order Again</button>
-            <button onClick={() => navigate('/shop/orders')} className="btn-secondary w-full">View Orders</button>
+            <button onClick={() => navigate('/shop/track')} className="btn-primary w-full">Track Order</button>
+            <button onClick={() => navigate('/shop')} className="btn-secondary w-full">Order Again</button>
+            <button onClick={() => navigate('/shop/orders')} className="btn-secondary w-full">View All Orders</button>
           </div>
         )}
 

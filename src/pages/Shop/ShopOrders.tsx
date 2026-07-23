@@ -75,7 +75,7 @@ export default function ShopOrders() {
                   )}
 
                   {/* Delivery progress */}
-                  {order.delivery && order.status !== 'failed' && (
+                  {order.delivery && order.status !== 'cancelled' && (
                     <div className="flex items-center gap-1 mb-3">
                       {['confirmed', 'preparing', 'shipping', 'delivered'].map((s, i) => {
                         const steps = ['confirmed', 'preparing', 'shipping', 'delivered'];
