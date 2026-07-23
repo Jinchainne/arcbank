@@ -11,6 +11,7 @@ import ShopCheckout from './pages/Shop/ShopCheckout';
 import ShopOrders from './pages/Shop/ShopOrders';
 import OrderTracking from './pages/Shop/OrderTracking';
 import DeliveryPage from './pages/Shop/DeliveryPage';
+import POSCheckout from './pages/Shop/POSCheckout';
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import AgentDashboard from './pages/Admin/AgentDashboard';
@@ -30,7 +31,8 @@ export default function App() {
                     <Route index element={<Navigate to="/shop" replace />} />
                     <Route path="shop" element={<ShopMenu />} />
                     <Route path="shop/delivery" element={<DeliveryPage />} />
-                    <Route path="shop/checkout" element={<ShopCheckout />} />
+                    <Route path="shop/checkout" element={<POSCheckout />} />
+                    <Route path="shop/wallet-checkout" element={<ShopCheckout />} />
                     <Route path="shop/orders" element={<ShopOrders />} />
                     <Route path="shop/track" element={<OrderTracking />} />
                   </Route>
