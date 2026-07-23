@@ -10,7 +10,7 @@ export const config = createConfig({
   connectors: [
     injected({ shimDisconnect: true }),
     walletConnect({ projectId: WC_PROJECT_ID, showQrModal: true }),
-    coinbaseWallet({ appName: 'ArcPay Shop' }),
+    coinbaseWallet({ appName: 'Coffee House Shop' }),
   ],
   transports: {
     [arcTestnet.id]: http('https://rpc.testnet.arc.network'),

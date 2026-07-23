@@ -59,7 +59,7 @@ export default function AdminDashboard() {
             </div>
             <div>
               <h1 className="text-lg font-bold">Admin Panel</h1>
-              <p className="text-xs text-slate-400">Quản lý ArcPay Shop</p>
+              <p className="text-xs text-slate-400">Quản lý Coffee House</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
