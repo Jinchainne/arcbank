@@ -42,10 +42,10 @@ export default function AdminDashboard() {
   };
 
   const tabs = [
-    { id: 'dashboard' as Tab, label: 'Tổng quan', icon: LayoutDashboard },
-    { id: 'orders' as Tab, label: 'Đơn hàng', icon: ShoppingCart },
-    { id: 'finance' as Tab, label: 'Thu Chi', icon: Receipt },
-    { id: 'tax' as Tab, label: 'Thuế', icon: Calculator },
+    { id: 'dashboard' as Tab, label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'orders' as Tab, label: 'Orders', icon: ShoppingCart },
+    { id: 'finance' as Tab, label: 'Finance', icon: Receipt },
+    { id: 'tax' as Tab, label: 'Tax', icon: Calculator },
   ];
 
   return (
@@ -65,7 +65,7 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-3">
             <button onClick={() => navigate('/shop')} className="text-xs text-slate-400 hover:text-white">Xem Shop →</button>
             <button onClick={handleLogout} className="flex items-center gap-1.5 text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg transition-colors">
-              <LogOut className="w-3.5 h-3.5" /> Đăng xuất
+              <LogOut className="w-3.5 h-3.5" /> Logout
             </button>
           </div>
         </div>
@@ -91,21 +91,21 @@ export default function AdminDashboard() {
           <div className="space-y-6">
             {/* Stats Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard label="Tổng doanh thu" value={formatCurrency(totalRevenue)} icon={DollarSign} color="blue" />
-              <StatCard label="Tổng chi phí" value={formatCurrency(totalExpense)} icon={TrendingDown} color="red" />
-              <StatCard label="Lợi nhuận" value={formatCurrency(profit)} icon={TrendingUp} color={profit >= 0 ? 'green' : 'red'} />
+              <StatCard label="Total Revenue" value={formatCurrency(totalRevenue)} icon={DollarSign} color="blue" />
+              <StatCard label="Total Expenses" value={formatCurrency(totalExpense)} icon={TrendingDown} color="red" />
+              <StatCard label="Profit" value={formatCurrency(profit)} icon={TrendingUp} color={profit >= 0 ? 'green' : 'red'} />
               <StatCard label="Đơn hàng" value={totalOrders.toString()} icon={ShoppingCart} color="purple" />
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-              <StatCard label="Đơn thành công" value={confirmedOrders.length.toString()} icon={Check} color="green" />
-              <StatCard label="Giá trị TB/đơn" value={`$${avgOrderValue.toFixed(2)}`} icon={Receipt} color="orange" />
-              <StatCard label="Doanh thu ship" value={formatCurrency(totalShippingRevenue)} icon={Truck} color="cyan" />
+              <StatCard label="Confirmed" value={confirmedOrders.length.toString()} icon={Check} color="green" />
+              <StatCard label="Avg Order Value" value={`$${avgOrderValue.toFixed(2)}`} icon={Receipt} color="orange" />
+              <StatCard label="Shipping Revenue" value={formatCurrency(totalShippingRevenue)} icon={Truck} color="cyan" />
             </div>
 
             {/* Revenue by category */}
             <div className="card p-6">
-              <h3 className="text-sm font-bold text-slate-900 mb-4">Doanh thu theo danh mục</h3>
+              <h3 className="text-sm font-bold text-slate-900 mb-4">Revenue by Category</h3>
               <div className="space-y-3">
                 {getCategoryRevenue(orders).map(([cat, rev]) => (
                   <div key={cat} className="flex items-center gap-3">
@@ -121,7 +121,7 @@ export default function AdminDashboard() {
 
             {/* Recent orders */}
             <div className="card p-6">
-              <h3 className="text-sm font-bold text-slate-900 mb-4">Đơn hàng gần đây</h3>
+              <h3 className="text-sm font-bold text-slate-900 mb-4">Recent Orders</h3>
               <div className="space-y-2">
                 {orders.slice(0, 5).map(order => (
                   <div key={order.id} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg">
@@ -132,7 +132,7 @@ export default function AdminDashboard() {
                     <span className="text-sm font-bold">${order.total.toFixed(2)}</span>
                   </div>
                 ))}
-                {orders.length === 0 && <p className="text-sm text-slate-400">Chưa có đơn hàng</p>}
+                {orders.length === 0 && <p className="text-sm text-slate-400">No orders yet</p>}
               </div>
             </div>
           </div>
@@ -142,12 +142,12 @@ export default function AdminDashboard() {
         {tab === 'orders' && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-900">Tất cả đơn hàng ({orders.length})</h2>
+              <h2 className="text-lg font-bold text-slate-900">All Orders ({orders.length})</h2>
             </div>
             {orders.length === 0 ? (
               <div className="card p-8 text-center">
                 <Package className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                <p className="text-sm text-slate-500">Chưa có đơn hàng nào</p>
+                <p className="text-sm text-slate-500">No orders yet nào</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -212,41 +212,41 @@ export default function AdminDashboard() {
         {/* ═══════ TAX ═══════ */}
         {tab === 'tax' && (
           <div className="space-y-6">
-            <h2 className="text-lg font-bold text-slate-900">Thuế hiện hành</h2>
+            <h2 className="text-lg font-bold text-slate-900">Current Tax Rates</h2>
 
             {/* Tax Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="card p-5 border-l-4 border-blue-500">
                 <p className="text-xs text-slate-500 mb-1">VAT (10%)</p>
                 <p className="text-2xl font-extrabold text-slate-900">${vatAmount.toFixed(2)}</p>
-                <p className="text-xs text-slate-400 mt-1">Thuế giá trị gia tăng trên doanh thu</p>
+                <p className="text-xs text-slate-400 mt-1">Value-added tax on revenue</p>
               </div>
               <div className="card p-5 border-l-4 border-amber-500">
                 <p className="text-xs text-slate-500 mb-1">TNDN (20%)</p>
                 <p className="text-2xl font-extrabold text-slate-900">${corporateTax.toFixed(2)}</p>
-                <p className="text-xs text-slate-400 mt-1">Thuế thu nhập doanh nghiệp</p>
+                <p className="text-xs text-slate-400 mt-1">Corporate income tax</p>
               </div>
               <div className="card p-5 border-l-4 border-green-500">
-                <p className="text-xs text-slate-500 mb-1">Lợi nhuận sau thuế</p>
+                <p className="text-xs text-slate-500 mb-1">Profit sau thuế</p>
                 <p className="text-2xl font-extrabold text-green-600">${netProfit.toFixed(2)}</p>
-                <p className="text-xs text-slate-400 mt-1">Lợi nhuận ròng sau thuế</p>
+                <p className="text-xs text-slate-400 mt-1">Profit ròng sau thuế</p>
               </div>
             </div>
 
             {/* Tax Breakdown */}
             <div className="card p-6">
-              <h3 className="text-sm font-bold text-slate-900 mb-4">Chi tiết tính thuế</h3>
+              <h3 className="text-sm font-bold text-slate-900 mb-4">Tax Calculation Breakdown</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-slate-600">Tổng doanh thu</span>
+                  <span className="text-slate-600">Total Revenue</span>
                   <span className="font-bold">${totalRevenue.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-600">Tổng chi phí</span>
+                  <span className="text-slate-600">Total Expenses</span>
                   <span className="font-bold text-red-600">-${totalExpense.toFixed(2)}</span>
                 </div>
                 <div className="border-t border-slate-200 pt-2 flex justify-between">
-                  <span className="text-slate-900 font-medium">Lợi nhuận trước thuế</span>
+                  <span className="text-slate-900 font-medium">Profit trước thuế</span>
                   <span className="font-bold">${profit.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-blue-600">
@@ -258,7 +258,7 @@ export default function AdminDashboard() {
                   <span className="font-bold">-${corporateTax.toFixed(2)}</span>
                 </div>
                 <div className="border-t-2 border-slate-900 pt-2 flex justify-between text-lg">
-                  <span className="font-extrabold">Lợi nhuận sau thuế</span>
+                  <span className="font-extrabold">Profit sau thuế</span>
                   <span className="font-extrabold text-green-600">${netProfit.toFixed(2)}</span>
                 </div>
               </div>
@@ -266,16 +266,16 @@ export default function AdminDashboard() {
 
             {/* Vietnamese Tax Info */}
             <div className="card p-6">
-              <h3 className="text-sm font-bold text-slate-900 mb-4">Bảng thuế Việt Nam hiện hành</h3>
+              <h3 className="text-sm font-bold text-slate-900 mb-4">Vietnam Tax Reference Table</h3>
               <div className="space-y-2 text-sm">
-                <TaxRow name="VAT (Thuế GTGT)" rate="10%" desc="Áp dụng cho hàng hóa, dịch vụ thông thường" />
-                <TaxRow name="Thuế TNDN" rate="20%" desc="Thuế thu nhập doanh nghiệp" />
-                <TaxRow name="Thuế TNCN (lương)" rate="5%-35%" desc="Lũy tiến theo bậc, 5% cho thu nhập ≤ 5tr/tháng" />
-                <TaxRow name="Thuế môn bài" rate="1-3 triệu/năm" desc="Theo mức vốn điều lệ" />
-                <TaxRow name="BHXH (công ty)" rate="17.5%" desc="Bảo hiểm xã hội doanh nghiệp đóng" />
-                <TaxRow name="BHXH (nhân viên)" rate="10.5%" desc="Bảo hiểm xã hội nhân viên đóng" />
-                <TaxRow name="BHYT" rate="4.5%" desc="Bảo hiểm y tế (3% công ty + 1.5% NV)" />
-                <TaxRow name="BHTN" rate="1%" desc="Bảo hiểm thất nghiệp" />
+                <TaxRow name="VAT (Thuế GTGT)" rate="10%" desc="Standard rate for goods/services" />
+                <TaxRow name="Thuế TNDN" rate="20%" desc="Corporate income tax" />
+                <TaxRow name="Thuế TNCN (lương)" rate="5%-35%" desc="Progressive, 5% cho thu nhập ≤ 5tr/tháng" />
+                <TaxRow name="Thuế môn bài" rate="1-3 triệu/năm" desc="Based on registered capital" />
+                <TaxRow name="BHXH (công ty)" rate="17.5%" desc="Social insurance (employer)" />
+                <TaxRow name="BHXH (nhân viên)" rate="10.5%" desc="Social insurance (employee)" />
+                <TaxRow name="BHYT" rate="4.5%" desc="Health insurance (3%+1.5%)" />
+                <TaxRow name="BHTN" rate="1%" desc="Unemployment insurance" />
               </div>
             </div>
           </div>
@@ -311,24 +311,24 @@ function FinanceTab() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-slate-900">Quản lý Thu Chi</h2>
+        <h2 className="text-lg font-bold text-slate-900">Income & Expense Management</h2>
         <button onClick={() => setShowForm(!showForm)} className="btn-primary !text-sm">
-          <Plus className="w-4 h-4" /> Thêm khoản
+          <Plus className="w-4 h-4" /> Add Entry
         </button>
       </div>
 
       {/* Summary */}
       <div className="grid grid-cols-3 gap-4">
         <div className="card p-4 border-l-4 border-green-500">
-          <p className="text-xs text-slate-500">Tổng thu</p>
+          <p className="text-xs text-slate-500">Total Income</p>
           <p className="text-xl font-extrabold text-green-600">${totalIncome.toFixed(2)}</p>
         </div>
         <div className="card p-4 border-l-4 border-red-500">
-          <p className="text-xs text-slate-500">Tổng chi</p>
+          <p className="text-xs text-slate-500">Total Expense</p>
           <p className="text-xl font-extrabold text-red-600">${totalExpense.toFixed(2)}</p>
         </div>
         <div className="card p-4 border-l-4 border-blue-500">
-          <p className="text-xs text-slate-500">Chênh lệch</p>
+          <p className="text-xs text-slate-500">Net</p>
           <p className={`text-xl font-extrabold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>${profit.toFixed(2)}</p>
         </div>
       </div>
@@ -336,27 +336,27 @@ function FinanceTab() {
       {/* Add form */}
       {showForm && (
         <form onSubmit={handleSubmit} className="card p-5 space-y-3 border-2 border-blue-200">
-          <h3 className="text-sm font-bold text-slate-900">Thêm khoản thu/chi</h3>
+          <h3 className="text-sm font-bold text-slate-900">Add Entry thu/chi</h3>
           <div className="flex gap-2">
             <button type="button" onClick={() => setType('income')}
               className={`flex-1 py-2 rounded-lg text-sm font-semibold ${type === 'income' ? 'bg-green-100 text-green-700 border-2 border-green-300' : 'bg-slate-100 text-slate-500'}`}>
-              Thu (+)
+              Income (+)
             </button>
             <button type="button" onClick={() => setType('expense')}
               className={`flex-1 py-2 rounded-lg text-sm font-semibold ${type === 'expense' ? 'bg-red-100 text-red-700 border-2 border-red-300' : 'bg-slate-100 text-slate-500'}`}>
-              Chi (-)
+              Expense (-)
             </button>
           </div>
           <select value={category} onChange={e => setCategory(e.target.value)} className="w-full">
-            <option value="">-- Chọn danh mục --</option>
+            <option value="">-- Select Category --</option>
             {categories.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          <input value={description} onChange={e => setDescription(e.target.value)} placeholder="Mô tả" />
+          <input value={description} onChange={e => setDescription(e.target.value)} placeholder="Description" />
           <div className="flex gap-2">
-            <input type="number" step="0.01" value={amount} onChange={e => setAmount(e.target.value)} placeholder="Số tiền ($)" className="flex-1" />
+            <input type="number" step="0.01" value={amount} onChange={e => setAmount(e.target.value)} placeholder="Amount ($)" className="flex-1" />
             <input type="date" value={date} onChange={e => setDate(e.target.value)} className="flex-1" />
           </div>
-          <input value={note} onChange={e => setNote(e.target.value)} placeholder="Ghi chú (tùy chọn)" />
+          <input value={note} onChange={e => setNote(e.target.value)} placeholder="Note (optional)" />
           <div className="flex gap-2">
             <button type="button" onClick={() => setShowForm(false)} className="btn-secondary flex-1">Hủy</button>
             <button type="submit" disabled={!category || !description || !amount} className="btn-primary flex-1">Lưu</button>
@@ -382,7 +382,7 @@ function FinanceTab() {
               <th className="text-left p-3">Ngày</th>
               <th className="text-left p-3">Loại</th>
               <th className="text-left p-3">Danh mục</th>
-              <th className="text-left p-3">Mô tả</th>
+              <th className="text-left p-3">Description</th>
               <th className="text-right p-3">Số tiền</th>
               <th className="p-3 w-10"></th>
             </tr>
@@ -411,7 +411,7 @@ function FinanceTab() {
           </tbody>
         </table>
         {filtered.length === 0 && (
-          <p className="text-center text-sm text-slate-400 py-8">Không có dữ liệu</p>
+          <p className="text-center text-sm text-slate-400 py-8">No data</p>
         )}
       </div>
     </div>
