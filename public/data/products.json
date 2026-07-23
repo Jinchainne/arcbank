@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updatedAt": "2026-07-23T13:42:41.355Z",
+  "updatedAt": "2026-07-23T13:48:09.954Z",
   "products": [
     {
       "id": "sb1",
@@ -197,7 +197,7 @@
       "price": 4.19,
       "category": "Breakfast",
       "brand": "McDonald's",
-      "image": "https://media.istockphoto.com/id/462256873/ru/%D1%84%D0%BE%D1%82%D0%BE/%D0%BA%D1%83%D1%87%D0%B0-%D0%B1%D0%BB%D0%B8%D0%BD%D1%8B-%D0%B8%D0%B7%D0%BE%D0%BB%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD-%D0%BD%D0%B0-%D0%B1%D0%B5%D0%BB%D0%BE%D0%BC.jpg",
+      "image": "(uploaded-image-needs-url)",
       "description": "Three golden brown, fluffy hotcakes served with butter and syrup"
     },
     {
@@ -206,7 +206,7 @@
       "price": 4.39,
       "category": "Desserts",
       "brand": "McDonald's",
-      "image": "https://irecommend.ru/sites/default/files/product-images/458925/QgWC5y5ojIVZbnLBbhFhCg.png",
+      "image": "(uploaded-image-needs-url)",
       "description": "Vanilla soft serve blended with OREO cookie pieces"
     },
     {
@@ -242,7 +242,7 @@
       "price": 3.29,
       "category": "Sides",
       "brand": "McDonald's",
-      "image": "https://media.istockphoto.com/id/2165886830/ru/%D1%84%D0%BE%D1%82%D0%BE/%D0%BE%D0%B1%D0%B6%D0%B0%D1%80%D0%B5%D0%BD%D0%BD%D1%8B%D0%B5-%D0%B2%D0%BE-%D1%84%D1%80%D0%B8%D1%82%D1%8E%D1%80%D0%B5-%D0%BB%D1%83%D0%BA%D0%BE%D0%B2%D1%8B%D0%B5-%D0%BA%D0%BE%D0%BB%D1%8C%D1%86%D0%B0.jpg",
+      "image": "(uploaded-image-needs-url)",
       "description": "Crispy battered onion rings, golden fried"
     },
     {
@@ -287,7 +287,7 @@
       "price": 1.49,
       "category": "Bakery",
       "brand": "Dunkin'",
-      "image": "https://irecommend.ru/sites/default/files/imagecache/copyright1/user-images/1322331/U8BOvx0Z4XLIvUiWqQr4w.jpg",
+      "image": "(uploaded-image-needs-url)",
       "description": "Classic yeast donut with sweet glaze"
     },
     {
@@ -359,7 +359,7 @@
       "price": 17.99,
       "category": "Chicken",
       "brand": "Jollibee",
-      "image": "https://media.istockphoto.com/id/576730586/ru/%D1%84%D0%BE%D1%82%D0%BE/%D0%BA%D1%80%D0%B0%D1%81%D0%BD%D0%BE%D0%B5-%D0%B2%D0%B5%D0%B4%D1%80%D0%BE-%D0%B6%D0%B0%D1%80%D0%B5%D0%BD%D0%BE%D0%B9-%D0%BA%D1%83%D1%80%D0%B8%D1%86%D1%8B.jpg",
+      "image": "(uploaded-image-needs-url)",
       "description": "6 pieces of signature crispy fried chicken"
     },
     {
@@ -683,7 +683,7 @@
       "price": 7.5,
       "category": "Pho & Noodles",
       "brand": "Phở Việt",
-      "image": "https://www.chilipeppermadness.com/wp-content/uploads/2023/09/Bo-Kho-Recipe-Spicy-Vietnamese-Beef-Stew1.jpg",
+      "image": "(uploaded-image-needs-url)",
       "description": "Bò kho mềm, cà rốt, sả, ăn với bánh mì hoặc bún"
     },
     {
@@ -728,7 +728,7 @@
       "price": 15.95,
       "category": "Hotpot",
       "brand": "Quán Việt",
-      "image": "https://media.istockphoto.com/id/1185218546/ru/%D1%84%D0%BE%D1%82%D0%BE/%D1%82%D0%BE%D0%BC-%D1%8F%D0%BC-%D0%BA%D1%83%D0%BD%D0%B3-%D1%82%D0%B0%D0%B9%D1%81%D0%BA%D0%B8%D0%B9-%D1%81%D1%82%D0%B8%D0%BB%D1%8C-%D0%BC%D0%BE%D1%80%D0%B5%D0%BF%D1%80%D0%BE%D0%B4%D1%83%D0%BA%D1%82%D0%BE%D0%B2-%D0%B3%D0%BE%D1%80%D1%8F%D1%87%D0%B8%D0%B9-%D0%B3%D0%BE%D1%80%D1%88%D0%BE%D0%BA-%D1%82%D1%80%D0%B0%D0%B4%D0%B8%D1%86%D0%B8%D0%BE%D0%BD%D0%BD%D0%B0%D1%8F-%D0%B5%D0%B4%D0%B0-%D0%B2-%D1%82%D0%B0%D0%B9%D1%81%D0%BA%D0%BE%D0%BC-%D1%81%D1%82%D0%B8%D0%BB%D0%B5.jpg",
+      "image": "(uploaded-image-needs-url)",
       "description": "Lẩu Thái chua cay — tôm, mực, cá, nấm, rau"
     },
     {
@@ -746,7 +746,7 @@
       "price": 3.5,
       "category": "Viet Drinks",
       "brand": "Cà Phê Việt",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Ca_Phe_Sua_Da.jpg/1200px-Ca_Phe_Sua_Da.jpg",
+      "image": "(uploaded-image-needs-url)",
       "description": "Cà phê phin Robusta với sữa đặc, served over ice"
     },
     {
@@ -755,7 +755,7 @@
       "price": 2.75,
       "category": "Viet Drinks",
       "brand": "Cà Phê Việt",
-      "image": "https://images.unsplash.com/photo-1497636577773-f123181845c1?w=400&h=400&fit=crop",
+      "image": "(uploaded-image-needs-url)",
       "description": "Cà phê phin đen đậm đà, không sữa, served over ice"
     },
     {
