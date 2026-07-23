@@ -1,5 +1,5 @@
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from 'wagmi';
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Wallet, ChevronDown, Copy, ExternalLink, LogOut, Check, AlertTriangle, X, Loader2 } from 'lucide-react';
 import { arcTestnet } from '../config/chains';
 
@@ -8,100 +8,17 @@ function shortenAddress(addr: string) {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
-// Inline SVG logos for each wallet (no external dependencies)
-function WalletIcon({ name, size = 44 }: { name: string; size?: number }) {
-  const s = size;
-  const r = 10; // border radius
-
-  const logos: Record<string, React.ReactNode> = {
-    MetaMask: (
-      <svg width={s} height={s} viewBox="0 0 100 100" fill="none">
-        <rect width="100" height="100" rx={r} fill="#F6851B"/>
-        <path d="M82 25L55 42l5-12z" fill="#E2761B" stroke="#E2761B" strokeWidth=".5"/>
-        <path d="M18 25l27 17-5-12z" fill="#E4761B" stroke="#E4761B" strokeWidth=".5"/>
-        <path d="M78 62l-7 10 15 4 4-14z" fill="#E4761B" stroke="#E4761B" strokeWidth=".5"/>
-        <path d="M8 62l4 14 15-4-7-10z" fill="#E4761B" stroke="#E4761B" strokeWidth=".5"/>
-        <path d="M47 46l-4 6 14 6 14-6-4-6z" fill="#E4761B" stroke="#E4761B" strokeWidth=".5"/>
-        <path d="M39 72l7-10-6-3H60l-6 3 7 10z" fill="#D7C1B3"/>
-        <path d="M18 25l-3 2 17 46 6-4-1 14 13 13 20-13 1-14 6 4L85 27z" fill="#763D16"/>
-        <path d="M82 25l-17 4-5-12zM25 29l-5 12-17-4z" fill="#E4751F"/>
-        <path d="M65 72l-1 14 13 13 4-2zM35 72l-1 14-13 13-4-2z" fill="#F5841F"/>
-        <path d="M60 52l-14 6 5 10 3 10h5l3-10 5-10z" fill="#763D16"/>
-        <path d="M55 42l-4 8 4 14 8-14 4-8z" fill="#763D16"/>
-      </svg>
-    ),
-    WalletConnect: (
-      <svg width={s} height={s} viewBox="0 0 100 100" fill="none">
-        <rect width="100" height="100" rx={r} fill="#3396FF"/>
-        <path d="M30 42c12-12 31-12 43 0l2 2c1 1 1 3 0 4l-5 5c-1 1-2 1-3 0l-2-2c-8-8-21-8-29 0l-2 2c-1 1-2 1-3 0l-5-5c-1-1-1-3 0-4z" fill="white"/>
-        <path d="M70 52l3 3c1 1 1 2 0 3l-12 12c-1 1-2 1-3 0l-8-8c-.5-.5-1.4-.5-2 0l-8 8c-1 1-2 1-3 0L24 58c-1-1-1-2 0-3l3-3c1-1 2-1 3 0l8 8c.5.5 1.4.5 2 0l8-8c1-1 2-1 3 0z" fill="white"/>
-      </svg>
-    ),
-    'Coinbase Wallet': (
-      <svg width={s} height={s} viewBox="0 0 100 100" fill="none">
-        <rect width="100" height="100" rx={r} fill="#0052FF"/>
-        <circle cx="50" cy="50" r="28" fill="white"/>
-        <rect x="38" y="38" width="24" height="24" rx="4" fill="#0052FF"/>
-        <path d="M46 50h8v4h-8z" fill="white"/>
-      </svg>
-    ),
-    OKX: (
-      <svg width={s} height={s} viewBox="0 0 100 100" fill="none">
-        <rect width="100" height="100" rx={r} fill="#000000"/>
-        <rect x="18" y="18" width="26" height="26" rx="5" fill="white"/>
-        <rect x="56" y="18" width="26" height="26" rx="5" fill="white"/>
-        <rect x="18" y="56" width="26" height="26" rx="5" fill="white"/>
-        <rect x="56" y="56" width="26" height="26" rx="5" fill="white"/>
-      </svg>
-    ),
-    Rabby: (
-      <svg width={s} height={s} viewBox="0 0 100 100" fill="none">
-        <rect width="100" height="100" rx={r} fill="#6C5CE7"/>
-        <ellipse cx="38" cy="30" rx="8" ry="14" fill="white"/>
-        <ellipse cx="62" cy="30" rx="8" ry="14" fill="white"/>
-        <circle cx="50" cy="55" r="22" fill="white"/>
-        <circle cx="42" cy="50" r="4" fill="#6C5CE7"/>
-        <circle cx="58" cy="50" r="4" fill="#6C5CE7"/>
-        <ellipse cx="50" cy="58" rx="3" ry="2" fill="#6C5CE7"/>
-        <path d="M44 62c2 3 10 3 12 0" stroke="#6C5CE7" strokeWidth="2" fill="none"/>
-      </svg>
-    ),
-    'Binance Wallet': (
-      <svg width={s} height={s} viewBox="0 0 100 100" fill="none">
-        <rect width="100" height="100" rx={r} fill="#F0B90B"/>
-        <path d="M50 22l-8 8-12-12-8 8 20 20 20-20-8-8-12 12z" fill="white"/>
-        <path d="M20 50l8-8 8 8-8 8z" fill="white"/>
-        <path d="M64 42l8 8-8 8-8-8z" fill="white"/>
-        <path d="M42 42l8-8 8 8-8 8z" fill="white"/>
-        <path d="M50 58l-8 8-12-12-8 8 20 20 20-20-8-8-12 12z" fill="white"/>
-      </svg>
-    ),
-    'Base Account': (
-      <svg width={s} height={s} viewBox="0 0 100 100" fill="none">
-        <rect width="100" height="100" rx={r} fill="#0052FF"/>
-        <circle cx="50" cy="50" r="25" fill="white"/>
-        <path d="M50 25a25 25 0 010 50V25z" fill="#0052FF"/>
-      </svg>
-    ),
-    Injected: (
-      <svg width={s} height={s} viewBox="0 0 100 100" fill="none">
-        <rect width="100" height="100" rx={r} fill="#6366F1"/>
-        <path d="M50 25l20 35H30z" fill="white"/>
-        <circle cx="50" cy="48" r="5" fill="#6366F1"/>
-      </svg>
-    ),
-  };
-
-  const logo = logos[name];
-  if (logo) return <div className="rounded-xl overflow-hidden" style={{ width: s, height: s }}>{logo}</div>;
-
-  // Fallback: first letter
-  return (
-    <div style={{ width: s, height: s }} className="rounded-xl bg-slate-100 flex items-center justify-center">
-      <span className="text-xl font-bold text-slate-500">{name.charAt(0)}</span>
-    </div>
-  );
-}
+// Wallet logo files (local SVGs)
+const WALLET_LOGOS: Record<string, string> = {
+  MetaMask: '/wallets/metamask.svg',
+  'Coinbase Wallet': '/wallets/coinbase.svg',
+  WalletConnect: '/wallets/walletconnect.svg',
+  OKX: '/wallets/okx.svg',
+  Rabby: '/wallets/rabby.svg',
+  'Binance Wallet': '/wallets/binance.svg',
+  'Base Account': '/wallets/base.svg',
+  Injected: '/wallets/injected.svg',
+};
 
 const WALLET_DESC: Record<string, string> = {
   MetaMask: 'Browser extension wallet',
@@ -113,6 +30,28 @@ const WALLET_DESC: Record<string, string> = {
   'Base Account': 'Base network wallet',
   Injected: 'Browser injected wallet',
 };
+
+function WalletLogo({ name, size = 44 }: { name: string; size?: number }) {
+  const logoUrl = WALLET_LOGOS[name];
+  if (logoUrl) {
+    return (
+      <div style={{ width: size, height: size }} className="rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center">
+        <img src={logoUrl} alt={name} className="w-full h-full object-contain"
+          onError={(e) => {
+            const t = e.target as HTMLImageElement;
+            t.style.display = 'none';
+            const p = t.parentElement;
+            if (p) p.innerHTML = `<span style="font-size:${size * 0.45}px;font-weight:bold;color:#94a3b8">${name.charAt(0)}</span>`;
+          }} />
+      </div>
+    );
+  }
+  return (
+    <div style={{ width: size, height: size }} className="rounded-xl bg-slate-100 flex items-center justify-center">
+      <span className="text-xl font-bold text-slate-500">{name.charAt(0)}</span>
+    </div>
+  );
+}
 
 // Force add + switch to Arc Testnet
 async function forceSwitchToArc() {
@@ -213,7 +152,7 @@ export default function WalletConnect() {
                 onClick={() => { connect({ connector }); }}
                 disabled={isPending}
                 className="w-full flex items-center gap-4 p-4 rounded-2xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all text-left group">
-                <WalletIcon name={connector.name} />
+                <WalletLogo name={connector.name} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-slate-900">{connector.name}</p>
                   <p className="text-[11px] text-slate-400">{WALLET_DESC[connector.name] || 'Connect wallet'}</p>
