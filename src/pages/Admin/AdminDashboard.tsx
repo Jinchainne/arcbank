@@ -487,14 +487,30 @@ function ProductsTab({ products, onAdd, onUpdate, onDelete }: {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, productId?: string) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) { alert('Image must be under 2MB'); return; }
+    if (file.size > 10 * 1024 * 1024) { alert('Image must be under 10MB'); return; }
     setUploading(true);
+
+    const img = new Image();
     const reader = new FileReader();
     reader.onload = () => {
-      const base64 = reader.result as string;
-      if (productId) { onUpdate(productId, { image: base64 }); }
-      else { setForm(f => ({ ...f, image: base64 })); }
-      setUploading(false);
+      img.onload = () => {
+        // Resize to max 600px to keep localStorage small
+        const MAX = 600;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
+        const compressed = canvas.toDataURL('image/jpeg', 0.75);
+        if (productId) { onUpdate(productId, { image: compressed }); }
+        else { setForm(f => ({ ...f, image: compressed })); }
+        setUploading(false);
+      };
+      img.onerror = () => { alert('Invalid image file'); setUploading(false); };
+      img.src = reader.result as string;
     };
     reader.onerror = () => { alert('Failed to read file'); setUploading(false); };
     reader.readAsDataURL(file);
@@ -538,15 +554,28 @@ function ProductsTab({ products, onAdd, onUpdate, onDelete }: {
             <input value={form.brand} onChange={e => setForm(f => ({ ...f, brand: e.target.value }))}
               placeholder="Brand" />
             <div className="sm:col-span-2 space-y-2">
-              <input value={form.image.startsWith('data:') ? '(uploaded image)' : form.image} onChange={e => setForm(f => ({ ...f, image: e.target.value }))}
-                placeholder="Image URL (or upload below)" />
-              <div className="flex items-center gap-3">
-                <label className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg cursor-pointer text-xs font-medium text-slate-600 transition-colors">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                  {uploading ? 'Uploading...' : 'Upload from Computer'}
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Product Image</label>
+              <div className="flex items-start gap-4">
+                <label className="flex flex-col items-center justify-center w-28 h-28 border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-xl cursor-pointer bg-slate-50 hover:bg-blue-50 transition-colors">
+                  {form.image ? (
+                    <img src={form.image} alt="Preview" className="w-full h-full object-cover rounded-xl" />
+                  ) : (
+                    <>
+                      <svg className="w-8 h-8 text-slate-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      <span className="text-[10px] text-slate-400">{uploading ? 'Uploading...' : 'Click to Upload'}</span>
+                    </>
+                  )}
                   <input type="file" accept="image/*" className="hidden" onChange={e => handleFileUpload(e)} disabled={uploading} />
                 </label>
-                {form.image && <img src={form.image} alt="Preview" className="w-10 h-10 rounded object-cover border border-slate-200" />}
+                <div className="flex-1 space-y-2">
+                  <input value={form.image.startsWith('data:') ? '' : form.image} onChange={e => setForm(f => ({ ...f, image: e.target.value }))}
+                    placeholder="Or paste image URL here (optional)" className="!text-xs" />
+                  <p className="text-[10px] text-slate-400">Upload from computer (JPG, PNG, WebP). Auto-resized to 600px. Max 10MB.</p>
+                  {form.image && (
+                    <button type="button" onClick={() => setForm(f => ({ ...f, image: '' }))}
+                      className="text-[10px] text-red-500 hover:text-red-700">Remove image</button>
+                  )}
+                </div>
               </div>
             </div>
             <input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
