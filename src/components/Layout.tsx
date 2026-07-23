@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
+import AIChat from './AIChat';
 
 export default function Layout() {
   return (
@@ -8,8 +9,8 @@ export default function Layout() {
       <main className="max-w-7xl mx-auto">
         <Outlet />
       </main>
+      <AIChat />
 
-      {/* Footer */}
       <footer className="bg-slate-900 text-slate-400 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-8">

@@ -7,6 +7,16 @@ function shortenAddress(addr: string) {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
+const WALLET_INFO: Record<string, { icon: string; desc: string }> = {
+  MetaMask: { icon: '🦊', desc: 'Browser extension wallet' },
+  'Coinbase Wallet': { icon: '🔵', desc: 'Coinbase mobile or extension' },
+  WalletConnect: { icon: '🔗', desc: 'Scan QR with any mobile wallet' },
+  Injected: { icon: '💉', desc: 'Browser injected wallet' },
+  'Brave Wallet': { icon: '🦁', desc: 'Built into Brave browser' },
+  'Rabby Wallet': { icon: '🐰', desc: 'Rabby browser extension' },
+  'Trust Wallet': { icon: '🛡️', desc: 'Trust Wallet mobile' },
+};
+
 export default function WalletConnect() {
   const { address, isConnected, chain } = useAccount();
   const { connect, connectors, isPending } = useConnect();
@@ -16,7 +26,6 @@ export default function WalletConnect() {
   const [showConnectors, setShowConnectors] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -36,37 +45,34 @@ export default function WalletConnect() {
     }
   };
 
-  // CONNECT BUTTON (not connected)
+  // NOT CONNECTED
   if (!isConnected) {
     if (showConnectors) {
       return (
         <div className="relative" ref={dropdownRef}>
-          <div className="absolute right-0 top-12 w-72 bg-white rounded-2xl shadow-xl border border-slate-200 p-4 z-50">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Connect Wallet</p>
+          <div className="absolute right-0 top-12 w-80 bg-white rounded-2xl shadow-xl border border-slate-200 p-4 z-50">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Select Wallet</p>
             <div className="space-y-2">
-              {connectors.map(connector => (
-                <button
-                  key={connector.uid}
-                  onClick={() => { connect({ connector }); setShowConnectors(false); }}
-                  disabled={isPending}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all text-left"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
-                    {connector.name === 'MetaMask' ? '🦊' :
-                     connector.name === 'WalletConnect' ? '🔗' :
-                     connector.name === 'Injected' ? '💉' :
-                     <Wallet className="w-5 h-5 text-slate-500" />}
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">{connector.name}</p>
-                    <p className="text-[10px] text-slate-400">
-                      {connector.name === 'MetaMask' ? 'Browser extension' :
-                       connector.name === 'WalletConnect' ? 'Scan with mobile wallet' :
-                       'Browser wallet'}
-                    </p>
-                  </div>
-                </button>
-              ))}
+              {connectors.map(connector => {
+                const info = WALLET_INFO[connector.name] || { icon: '👛', desc: 'Connect wallet' };
+                return (
+                  <button
+                    key={connector.uid}
+                    onClick={() => { connect({ connector }); setShowConnectors(false); }}
+                    disabled={isPending}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all text-left"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl">
+                      {info.icon}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-slate-900">{connector.name}</p>
+                      <p className="text-[10px] text-slate-400">{info.desc}</p>
+                    </div>
+                    {isPending && <span className="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />}
+                  </button>
+                );
+              })}
             </div>
             <button onClick={() => setShowConnectors(false)} className="w-full mt-3 py-2 text-xs text-slate-400 hover:text-slate-600">
               Cancel
@@ -87,7 +93,7 @@ export default function WalletConnect() {
     );
   }
 
-  // CONNECTED — show address with dropdown
+  // CONNECTED
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -103,7 +109,6 @@ export default function WalletConnect() {
 
       {open && (
         <div className="absolute right-0 top-12 w-72 bg-white rounded-2xl shadow-xl border border-slate-200 z-50 overflow-hidden">
-          {/* Connected info */}
           <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 border-b border-slate-100">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-sm font-bold text-white shadow-md">
@@ -127,7 +132,6 @@ export default function WalletConnect() {
             )}
           </div>
 
-          {/* Actions */}
           <div className="p-2">
             <button onClick={copyAddress}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 text-left transition-colors">
