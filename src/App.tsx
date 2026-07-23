@@ -3,11 +3,14 @@ import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { config } from './config/wagmi';
 import { ShopProvider } from './hooks/useShop';
+import { AdminProvider } from './hooks/useAdmin';
 import Layout from './components/Layout';
 import ShopMenu from './pages/Shop/ShopMenu';
 import ShopCheckout from './pages/Shop/ShopCheckout';
 import ShopOrders from './pages/Shop/ShopOrders';
 import DeliveryPage from './pages/Shop/DeliveryPage';
+import AdminLogin from './pages/Admin/AdminLogin';
+import AdminDashboard from './pages/Admin/AdminDashboard';
 
 const queryClient = new QueryClient();
 
@@ -17,15 +20,19 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <ShopProvider>
-            <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<Navigate to="/shop" replace />} />
-                <Route path="shop" element={<ShopMenu />} />
-                <Route path="shop/delivery" element={<DeliveryPage />} />
-                <Route path="shop/checkout" element={<ShopCheckout />} />
-                <Route path="shop/orders" element={<ShopOrders />} />
-              </Route>
-            </Routes>
+            <AdminProvider>
+              <Routes>
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<Navigate to="/shop" replace />} />
+                  <Route path="shop" element={<ShopMenu />} />
+                  <Route path="shop/delivery" element={<DeliveryPage />} />
+                  <Route path="shop/checkout" element={<ShopCheckout />} />
+                  <Route path="shop/orders" element={<ShopOrders />} />
+                </Route>
+                <Route path="/admin" element={<AdminLogin />} />
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              </Routes>
+            </AdminProvider>
           </ShopProvider>
         </BrowserRouter>
       </QueryClientProvider>
