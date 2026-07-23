@@ -200,15 +200,53 @@ export default function ShopCheckout() {
               </div>
             </div>
 
-            {/* Pay Buttons */}
-            <div className="space-y-2">
-              <button onClick={handlePay} disabled={insufficientBalance || cartTotal <= 0} className="btn-primary w-full">
-                Pay ${grandTotal.toFixed(2)} USDC
-              </button>
-              <button onClick={() => setShowQR(true)} className="btn-secondary w-full flex items-center justify-center gap-2">
-                <QrCode className="w-4 h-4" /> Scan QR to Pay
-              </button>
+            {/* QR Code Payment */}
+            <div className="card p-5 text-center border-2 border-blue-200 bg-blue-50">
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <QrCode className="w-5 h-5 text-blue-600" />
+                <h3 className="text-sm font-bold text-blue-900">Scan QR to Pay</h3>
+              </div>
+              <p className="text-xs text-blue-600 mb-4">Open your wallet app and scan this QR code</p>
+              
+              <div className="inline-block p-3 bg-white rounded-2xl shadow-md">
+                <QRCodeSVG
+                  value={paymentURI}
+                  size={180}
+                  level="H"
+                  includeMargin={false}
+                />
+              </div>
+
+              <div className="mt-4 space-y-2">
+                <div className="flex items-center justify-between bg-white rounded-xl p-2.5">
+                  <span className="text-xs text-slate-500">Amount</span>
+                  <span className="text-sm font-bold text-blue-600">${grandTotal.toFixed(2)} USDC</span>
+                </div>
+                <div className="flex items-center justify-between bg-white rounded-xl p-2.5">
+                  <span className="text-xs text-slate-500">Network</span>
+                  <span className="text-xs font-semibold text-slate-700">Arc Testnet (5042002)</span>
+                </div>
+                <div className="flex items-center justify-between bg-white rounded-xl p-2.5">
+                  <span className="text-xs text-slate-500">Merchant</span>
+                  <span className="text-xs font-mono text-slate-600">{shortenAddress(MERCHANT_ADDRESS)}</span>
+                  <button onClick={copyAddress} className="ml-2 px-2 py-0.5 bg-slate-900 text-white text-[10px] font-bold rounded-md">
+                    {copied ? '✓' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+              <p className="text-[10px] text-blue-500 mt-3">Only send ARC Testnet USDC to this address</p>
             </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-slate-200" />
+              <span className="text-xs text-slate-400 font-medium">OR</span>
+              <div className="flex-1 h-px bg-slate-200" />
+            </div>
+
+            <button onClick={handlePay} disabled={insufficientBalance || cartTotal <= 0} className="btn-primary w-full">
+              Pay ${grandTotal.toFixed(2)} USDC
+            </button>
           </div>
         )}
 
