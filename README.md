@@ -1,37 +1,107 @@
-# ☕ COFFEE HOUSE
+<p align="center">
+  <img src="public/logo.png" alt="Coffee House" width="80" height="80" style="border-radius:50%">
+</p>
 
-> **On-chain coffee shop POS system** — Order food, pay with USDC on Arc Testnet, track delivery in real-time.
+<h1 align="center">COFFEE HOUSE</h1>
 
-![Arc Testnet](https://img.shields.io/badge/Arc%20Testnet-5042002-blue)
-![USDC Payment](https://img.shields.io/badge/Payment-USDC%2027b-green)
-![Vite](https://img.shields.io/badge/Vite-8-646CFF)
-![React](https://img.shields.io/badge/React-19-61DAFB)
-![License](https://img.shields.io/badge/License-MIT-green)
+<p align="center">
+  <strong>On-chain coffee shop POS system</strong><br>
+  Order food · Pay with USDC on Arc Testnet · Track delivery in real-time
+</p>
 
-**Live:** [coffeehouse-shop.vercel.app](https://coffeehouse-shop.vercel.app/shop)
+<p align="center">
+  <a href="https://coffeehouse-shop.vercel.app/shop">🔗 Live Demo</a> ·
+  <a href="https://github.com/Jinchainne/COFFEEHOUSE">📦 GitHub</a> ·
+  <a href="https://testnet.arcscan.app">⛓️ Arc Explorer</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Arc_Testnet-5042002-blue?style=flat-square" alt="Arc Testnet">
+  <img src="https://img.shields.io/badge/Payment-USDC_✓-green?style=flat-square" alt="USDC">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react" alt="React">
+  <img src="https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite" alt="Vite">
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Tailwind-3-06B6D4?style=flat-square&logo=tailwindcss" alt="Tailwind">
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT">
+</p>
 
 ---
 
-## Purpose
+## Why Arc Testnet?
 
-**COFFEE HOUSE** demonstrates how a real-world food ordering business can operate entirely on-chain using **Arc Testnet** — Circle's stablecoin-native Layer 1 blockchain designed for USDC payments.
+**COFFEE HOUSE** demonstrates how a real-world food business can operate entirely on-chain using **Arc Testnet** — Circle's stablecoin-native Layer 1 designed for USDC payments.
 
-### Why Arc Testnet?
+| Feature | What It Means |
+|---|---|
+| **USDC Native** | Payments in stablecoin — $1 = $1, no crypto volatility |
+| **~$0.01 Gas** | Transaction fees cheaper than a credit card swipe |
+| **Fast Finality** | Payments confirm in seconds, not minutes |
+| **EVM Compatible** | Works with MetaMask, OKX, WalletConnect, Coinbase, Rabby |
+| **Programmable** | Smart contracts for auto-settlement, agent payments, escrow |
 
-| Feature | Benefit |
-|---------|---------|
-| **USDC-native** | Payments in USDC stablecoin — no volatile crypto, $1 = $1 |
-| **Low gas fees** | ~$0.01 per transaction — viable for coffee-sized purchases |
-| **Fast finality** | Payments confirm in seconds, not minutes |
-| **EVM-compatible** | Standard wallet support (MetaMask, OKX, WalletConnect, Coinbase) |
-| **Programmable** | Smart contracts enable automated settlement, agent payments, escrow |
+---
 
-### Real-World Use Cases Demonstrated
+## Features
 
-1. **POS Payments** — Customer scans QR → pays USDC → shop detects payment on-chain → confirms order
-2. **Agent Economy** — Autonomous AI agents with wallets make nanopayments for order processing, delivery routing, and recommendations
-3. **Transparent Accounting** — Every transaction is on-chain and verifiable via [ArcScan](https://testnet.arcscan.app)
-4. **Dual Payment Mode** — Wallet-connected signing OR QR scan without wallet (POS-style)
+### Shop (`/shop`)
+
+- **92 products** across 21 categories — Starbucks, McDonald's, Jollibee, Pizza Hut, Subway, Vietnamese cuisine
+- Category sidebar with product counts and emoji icons
+- Product search, wishlist hearts, star ratings & comments
+- Cart with quantity controls and running total
+
+### Payment
+
+| Mode | How It Works |
+|---|---|
+| **Wallet Sign** | Connect wallet → sign USDC transfer on Arc Testnet → instant confirmation |
+| **QR Scan (POS)** | Shop shows QR → customer scans with ANY wallet → system polls blockchain → auto-confirm |
+
+- Merchant: `0x363700d10ca9c4809ad7034f5b21650a9a5e34bd`
+- Chain ID: `5042002`
+- Auto chain-switch for new wallets (`wallet_addEthereumChain`)
+
+### Delivery
+
+- Interactive map (Leaflet + OpenStreetMap)
+- Address search with Nominatim geocoding
+- Vietnam 63 provinces shipping (Haversine distance formula)
+- Real-time order status tracking (Pending → Confirmed → Preparing → Shipping → Delivered)
+
+### Admin Panel (`/admin`)
+
+| Tab | Function |
+|---|---|
+| **Dashboard** | Revenue, expenses, profit, order stats, category revenue chart |
+| **Orders** | Full order list with status management and delivery info |
+| **Finance** | Income/expense CRUD with categories and filtering |
+| **Tax** | VAT (10%), Corporate Tax (20%), Vietnam tax reference table |
+| **Products** | CRUD with **local image upload** (auto-compress to 600px JPEG), inline name/price editing |
+| **AI Agent** | AI business analyst with order pipeline, P&L statement, shipping analysis, AI chat |
+| **Backup** | Export JSON/CSV, import backup, data summary with storage usage |
+
+- **Server-side auth** — password stored as Vercel env var, never exposed to client
+- **Publish to Site** — commit products.json to GitHub → Vercel auto-deploys
+
+### AI Agent (`/admin/dashboard → AI Agent tab`)
+
+- **Insights** — Key metrics, automated alerts, top products, P&L summary
+- **Orders** — Status pipeline, category revenue, detailed order list
+- **Finance** — Income/expense breakdown, profit margin, COGS estimation
+- **Shipping** — Delivery adoption rate, shipping revenue vs cost, profit analysis
+- **AI Chat** — Business analyst powered by MiMo AI with full data context (orders, revenue, products, expenses, customers)
+
+### AI Chat Assistant
+
+- Floating chat widget with cyber cat avatar
+- Powered by MiMo v2.5 Pro API
+- Menu recommendations, price lookups, order help
+
+### Agent Economy
+
+- 4 autonomous agents with blockchain wallets
+- Nanopayments between agents for services
+- Decision logging with confidence scores
 
 ---
 
@@ -39,113 +109,78 @@
 
 ```
 COFFEEHOUSE/
-├── api/                          # Vercel Serverless Functions
-│   ├── auth.ts                   #   Admin password verification
-│   └── publish.ts                #   Publish products to GitHub → auto-deploy
+│
+├── api/                              # Vercel Serverless Functions
+│   ├── auth.ts                       #   POST /api/auth — password verification
+│   └── publish.ts                    #   POST /api/publish — commit products.json to GitHub
 │
 ├── public/
-│   ├── agent.png                 #   AI assistant avatar (cyber cat)
+│   ├── agent.png                     #   AI assistant avatar (cyber cat, no background)
+│   ├── logo.png                      #   Site logo
 │   └── data/
-│       └── products.json         #   Product catalog (synced via admin)
+│       └── products.json             #   Product catalog (synced via admin publish)
 │
 ├── src/
-│   ├── main.tsx                  #   App entry point
-│   ├── App.tsx                   #   Router + providers
+│   ├── main.tsx                      #   Entry point
+│   ├── App.tsx                       #   Router + providers
 │   │
 │   ├── components/
-│   │   ├── AIChat.tsx            #   Floating AI assistant (MiMo API)
-│   │   ├── ErrorBoundary.tsx     #   Crash recovery
-│   │   ├── Layout.tsx            #   Shop layout with navbar + footer
-│   │   ├── Navbar.tsx            #   Navigation bar
-│   │   ├── WalletConnect.tsx     #   Multi-wallet selector
-│   │   └── ...
+│   │   ├── AIChat.tsx                #   Floating AI assistant (MiMo API)
+│   │   ├── ErrorBoundary.tsx         #   Crash recovery with clear-data reload
+│   │   ├── Layout.tsx                #   Shop layout (navbar + footer + AIChat)
+│   │   ├── Navbar.tsx                #   Top navigation bar
+│   │   ├── Sidebar.tsx               #   Category sidebar
+│   │   ├── WalletConnect.tsx         #   Multi-wallet selector modal
+│   │   └── UI.tsx                    #   Shared UI components
 │   │
 │   ├── config/
-│   │   ├── wagmi.ts              #   Multi-wallet config (MetaMask, OKX, WalletConnect, Coinbase)
-│   │   ├── chains.ts             #   Arc Testnet chain definition
-│   │   └── vietnamLocations.ts   #   63 provinces for delivery
+│   │   ├── wagmi.ts                  #   wagmi v3 multi-wallet config
+│   │   ├── chains.ts                 #   Arc Testnet chain definition (5042002)
+│   │   ├── vietnamLocations.ts       #   63 provinces with coordinates
+│   │   └── mimo.ts                   #   MiMo AI API config
 │   │
 │   ├── hooks/
-│   │   ├── useShop.tsx           #   Products, cart, orders, delivery state
-│   │   ├── useAdmin.tsx          #   Admin auth, finances, income/expense
-│   │   ├── useAgent.tsx          #   Agent economy: wallets, nanopayments
-│   │   └── ...
+│   │   ├── useShop.tsx               #   Products, cart, orders, delivery (Context)
+│   │   ├── useAdmin.tsx              #   Admin auth, finances (Context)
+│   │   ├── useAgent.tsx              #   Agent economy: wallets, nanopayments
+│   │   └── useOnChain.ts             #   Blockchain interaction helpers
 │   │
-│   └── pages/
-│       ├── Admin/
-│       │   ├── AdminLogin.tsx    #   Password-protected login (server-side)
-│       │   ├── AdminDashboard.tsx#   Dashboard, orders, finance, tax, products, backup
-│       │   └── AgentDashboard.tsx#   Agent economy visualization
-│       │
-│       └── Shop/
-│           ├── ShopMenu.tsx      #   Product grid + category sidebar
-│           ├── ShopCheckout.tsx  #   Cart review + crypto payment
-│           ├── POSCheckout.tsx   #   QR code payment (no wallet needed)
-│           ├── DeliveryPage.tsx  #   Map-based address selection
-│           ├── ShopOrders.tsx    #   Order history + tracking
-│           └── OrderTracking.tsx #   Real-time delivery progress
+│   ├── pages/
+│   │   ├── Admin/
+│   │   │   ├── AdminLogin.tsx        #   Password login (server-side auth)
+│   │   │   ├── AdminDashboard.tsx    #   7-tab admin panel
+│   │   │   └── AgentDashboard.tsx    #   AI Agent embedded panel
+│   │   │
+│   │   └── Shop/
+│   │       ├── ShopMenu.tsx          #   Product grid + category filter
+│   │       ├── ShopCheckout.tsx      #   Cart review + crypto payment
+│   │       ├── POSCheckout.tsx       #   QR code payment (no wallet needed)
+│   │       ├── DeliveryPage.tsx      #   Map-based address selection
+│   │       ├── ShopOrders.tsx        #   Order history
+│   │       └── OrderTracking.tsx     #   Real-time delivery progress
+│   │
+│   └── utils/
+│       └── format.ts                 #   Currency formatting helpers
 │
-├── vercel.json                   #   SPA routing + API rewrites
+├── vercel.json                       #   SPA routing + API rewrites
 ├── package.json
 └── tsconfig.json
 ```
 
 ---
 
-## Features
-
-### Shop (`/shop`)
-- **92 products** across 21 categories (Starbucks, McDonald's, Jollibee, Pizza Hut, Subway, Vietnamese food)
-- Category sidebar with product counts
-- Search + wishlist hearts + star ratings
-- Cart with quantity controls
-
-### Payment (`/checkout`)
-- **Wallet Sign** — Connect wallet → sign USDC transfer on Arc Testnet
-- **QR Scan** — POS-style: show QR → customer scans with any wallet → auto-detect payment via blockchain polling
-- Merchant address: `0x363700d10ca9c4809ad7034f5b21650a9a5e34bd`
-
-### Delivery (`/delivery`)
-- Leaflet/OpenStreetMap interactive map
-- Address search with Nominatim geocoding
-- Vietnam 63 provinces shipping (Haversine distance calculation)
-- Real-time order status tracking
-
-### Admin (`/admin`)
-- **Server-side auth** — password stored as Vercel env var, never exposed to client
-- **Dashboard** — revenue, expenses, profit, order stats
-- **Orders** — full order list with status management
-- **Finance** — income/expense tracking with categories
-- **Tax** — VAT (10%), corporate tax (20%), Vietnam tax reference
-- **Products** — CRUD with local image upload (auto-compressed to 600px JPEG)
-- **Backup** — export/import JSON, export CSV, data summary
-- **Publish to Site** — commit products.json to GitHub → Vercel auto-deploys
-
-### Agent Economy (`/admin/agents`)
-- 4 autonomous agents with blockchain wallets
-- Nanopayments between agents for services
-- Decision logging with confidence scores
-- Order processing, delivery routing, AI recommendations
-
-### AI Assistant
-- Floating chat widget with cyber cat avatar
-- Powered by MiMo AI API
-- Menu recommendations, price lookups, order help
-
----
-
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
-| Frontend | React 19, TypeScript, Vite 8, Tailwind CSS 3 |
-| Blockchain | Arc Testnet (Chain ID 5042002), USDC, wagmi v3 |
-| Wallets | MetaMask, OKX, WalletConnect, Coinbase, Rabby |
-| Maps | Leaflet, OpenStreetMap, Nominatim |
-| AI | MiMo v2.5 Pro API |
-| Auth | Vercel Serverless Functions |
-| Hosting | Vercel (auto-deploy from GitHub) |
-| Data | localStorage + GitHub-synced JSON |
+|---|---|
+| **Frontend** | React 19, TypeScript, Vite 8 (Rolldown), Tailwind CSS 3 |
+| **Blockchain** | Arc Testnet (Chain ID 5042002), USDC, wagmi v3 |
+| **Wallets** | MetaMask, OKX, WalletConnect, Coinbase, Rabby |
+| **Maps** | Leaflet, OpenStreetMap, Nominatim geocoding |
+| **AI** | MiMo v2.5 Pro API |
+| **Auth** | Vercel Serverless Functions (server-side password) |
+| **Hosting** | Vercel (auto-deploy from GitHub) |
+| **Data** | localStorage + GitHub-synced JSON |
 
 ---
 
@@ -156,76 +191,113 @@ COFFEEHOUSE/
 git clone https://github.com/Jinchainne/COFFEEHOUSE.git
 cd COFFEEHOUSE
 
-# Install
+# Install dependencies
 npm install
 
-# Develop
-npm run dev        # → http://localhost:5173
+# Start dev server
+npm run dev          # → http://localhost:5173
 
-# Build
-npm run build      # tsc + vite build
+# Build for production
+npm run build        # tsc -b && vite build
 
-# Deploy
-git push origin main  # Vercel auto-deploys
+# Deploy (auto via GitHub)
+git push origin main # Vercel auto-deploys
 ```
 
-### Environment Variables (Vercel)
+### Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `ADMIN_PASSWORD` | Admin panel password (server-side only) |
-| `GITHUB_TOKEN` | GitHub PAT for publish feature (contents:write) |
+Set these in **Vercel Dashboard → Settings → Environment Variables**:
 
----
-
-## Arc Testnet Configuration
-
-```typescript
-// Chain ID: 5042002
-// RPC: https://rpc.testnet.arc.network
-// Explorer: https://testnet.arcscan.app
-// USDC Contract: 0x... (native on Arc)
-// Gas: ~$0.01 per transaction
-
-// Add to wallet:
-await window.ethereum.request({
-  method: 'wallet_addEthereumChain',
-  params: [{
-    chainId: '0x4cf3a2',
-    chainName: 'Arc Testnet',
-    nativeCurrency: { name: 'USDC', symbol: 'USDC', decimals: 18 },
-    rpcUrls: ['https://rpc.testnet.arc.network'],
-    blockExplorerUrls: ['https://testnet.arcscan.app'],
-  }],
-});
-```
+| Variable | Required | Description |
+|---|---|---|
+| `ADMIN_PASSWORD` | ✅ | Admin panel password (server-side only, never exposed) |
+| `GITHUB_TOKEN` | ✅ | GitHub PAT with `contents:write` for publish feature |
 
 ---
 
 ## Payment Flow
 
 ```
-Customer                    Shop                     Blockchain (Arc Testnet)
-   │                          │                              │
-   ├─ Browse menu ───────────►│                              │
-   ├─ Add to cart ───────────►│                              │
-   ├─ Checkout ──────────────►│                              │
-   │                          ├─ Generate QR ────────────────┤
-   │◄─ Show QR code ─────────┤                              │
-   ├─ Scan with wallet ──────►│                              │
-   │                          ├─ Send USDC ─────────────────►│
-   │                          │                              ├─ Tx confirmed
-   │                          │◄─ Poll balance ─────────────┤
-   │                          ├─ Payment detected!           │
-   │◄─ Order confirmed ──────┤                              │
-   │                          ├─ Prepare order               │
-   │◄─ Delivery tracking ────┤                              │
+┌──────────┐         ┌──────────────┐         ┌─────────────────────┐
+│ Customer │         │  Coffee House │         │  Arc Testnet (L1)   │
+└────┬─────┘         └──────┬───────┘         └──────────┬──────────┘
+     │                      │                            │
+     │  1. Browse & Cart    │                            │
+     │─────────────────────►│                            │
+     │                      │                            │
+     │  2. Checkout         │                            │
+     │─────────────────────►│                            │
+     │                      │                            │
+     │  3. Show QR / Sign   │                            │
+     │◄─────────────────────│                            │
+     │                      │                            │
+     │  4. Send USDC        │    5. Tx on-chain          │
+     │──────────────────────│───────────────────────────►│
+     │                      │                            │
+     │                      │    6. Poll balance          │
+     │                      │◄───────────────────────────│
+     │                      │                            │
+     │  7. Order confirmed  │    7. Payment detected     │
+     │◄─────────────────────│                            │
+     │                      │                            │
+     │  8. Track delivery   │                            │
+     │◄─────────────────────│                            │
 ```
+
+---
+
+## Key Design Decisions
+
+### Why localStorage + GitHub Sync?
+
+The app uses a **hybrid data approach**:
+- **localStorage** for instant reads/writes (cart, orders, admin changes)
+- **GitHub-synced JSON** (`public/data/products.json`) for cross-browser persistence
+- Admin "Publish to Site" button commits changes → Vercel auto-deploys → all visitors see updates
+
+### Why Server-Side Auth?
+
+The admin password is stored as a **Vercel environment variable** and verified via a serverless function (`/api/auth`). The password never appears in:
+- Client-side JavaScript bundles
+- The login page UI
+- Git repository
+
+### Why Dual Payment Mode?
+
+- **Wallet Sign** — For crypto-native users with wallets installed
+- **QR Scan** — For walk-in customers at a physical cafe who don't have wallets
+
+Both modes detect payment by polling the merchant's USDC balance on-chain.
+
+---
+
+## Screenshots
+
+| Shop | Admin Dashboard | AI Agent |
+|---|---|---|
+| Product grid with 92 items | 7-tab management panel | Business intelligence |
+| Category sidebar | Image upload from computer | Order & shipping analysis |
+| Cart + checkout | Publish to live site | AI chat with full data context |
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing`)
+3. Commit changes (`git commit -m 'feat: amazing feature'`)
+4. Push to branch (`git push origin feature/amazing`)
+5. Open a Pull Request
 
 ---
 
 ## License
 
-MIT © [Jinchainne](https://github.com/Jinchainne)
+[MIT](LICENSE) © [Jinchainne](https://github.com/Jinchainne)
 
-Built for the **Circle Encode Club** hackathon on Arc Testnet.
+---
+
+<p align="center">
+  Built for the <strong>Circle Encode Club</strong> hackathon on <strong>Arc Testnet</strong><br>
+  <img src="https://img.shields.io/badge/Arc_Testnet-5042002-blue?style=flat-square" alt="Arc Testnet">
+</p>
