@@ -10,13 +10,13 @@ function shortenAddress(addr: string) {
 
 // Wallet logos - real CDN icons
 const WALLET_LOGOS: Record<string, string> = {
-  MetaMask: 'https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg',
-  'Coinbase Wallet': 'https://cdn.worldvectorlogo.com/logos/coinbase-1.svg',
-  WalletConnect: 'https://cdn.worldvectorlogo.com/logos/walletconnect-logo.svg',
-  OKX: 'https://static.okx.com/cdn/assets/imgs/221/5F7A0B6A3D10A8D3.png',
-  Rabby: 'https://assets.rabby.io/rabby-extension/assets/rabby-logo.svg',
-  'Binance Wallet': 'https://cdn.worldvectorlogo.com/logos/binance-logo.svg',
-  Injected: 'https://cdn-icons-png.flaticon.com/512/6295/6295417.png',
+  MetaMask: '/wallets/metamask.jpe',
+  'Coinbase Wallet': '/wallets/coinbase.png',
+  WalletConnect: '/wallets/walletconnect.png',
+  OKX: '/wallets/okx.png',
+  Rabby: '/wallets/rabby.jpe',
+  'Binance Wallet': '/wallets/binance.png',
+  Injected: '/wallets/binance.png',
 };
 
 const WALLET_DESC: Record<string, string> = {
