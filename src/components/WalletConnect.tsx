@@ -1,6 +1,6 @@
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from 'wagmi';
 import { useState, useRef, useEffect } from 'react';
-import { Wallet, ChevronDown, Copy, ExternalLink, LogOut, Check, AlertTriangle, X, Loader2 } from 'lucide-react';
+import { Wallet, ChevronDown, Copy, ExternalLink, LogOut, Check, AlertTriangle, Loader2 } from 'lucide-react';
 import { arcTestnet } from '../config/chains';
 
 function shortenAddress(addr: string) {
@@ -36,12 +36,11 @@ async function forceSwitchToArc() {
 
 export default function WalletConnect() {
   const { address, isConnected, chain } = useAccount();
-  const { connect, connectors, isPending } = useConnect();
+  const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const { switchChain } = useSwitchChain();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [switching, setSwitching] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const hasTriedSwitch = useRef(false);
@@ -57,7 +56,6 @@ export default function WalletConnect() {
       });
     }
     if (isConnected && chain && chain.id === arcTestnet.id) {
-      setShowModal(false);
     }
   }, [isConnected, chain, switchChain]);
 
