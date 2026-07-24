@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updatedAt": "2026-07-24T04:30:03.483Z",
+  "updatedAt": "2026-07-24T05:45:47.128Z",
   "products": [
     {
       "id": "sb1",
@@ -9,7 +9,8 @@
       "category": "Hot Coffee",
       "brand": "Starbucks",
       "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop",
-      "description": "Rich espresso topped with steamed milk and a light layer of foam"
+      "description": "Rich espresso topped with steamed milk and a light layer of foam",
+      "stock": 100
     },
     {
       "id": "sb2",
