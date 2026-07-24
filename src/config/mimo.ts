@@ -38,5 +38,6 @@ Always respond in English. Be concise, friendly, and professional. Use emojis sp
   });
 
   const data = await response.json();
-  return data.choices?.[0]?.message?.content || 'Sorry, I could not process your request.';
+  const content = data.choices?.[0]?.message?.content || data.choices?.[0]?.message?.reasoning_content || 'Sorry, I could not process your request.';
+  return content;
 }

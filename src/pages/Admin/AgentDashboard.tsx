@@ -201,7 +201,7 @@ Respond as a professional business analyst and accountant. Be thorough, use bull
         }),
       });
       const data = await resp.json();
-      const content = data.choices?.[0]?.message?.content || 'Unable to analyze. Please try again.';
+      const content = data.choices?.[0]?.message?.content || data.choices?.[0]?.message?.reasoning_content || 'Unable to analyze. Please try again.';
       setMessages(prev => [...prev, { role: 'assistant', content, timestamp: Date.now() }]);
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Connection error.', timestamp: Date.now() }]);
