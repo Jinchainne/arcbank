@@ -194,7 +194,7 @@ export default function MarketTrends() {
       } else {
         setError('Failed to parse AI response. Please try again.');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to generate report. Please try again.');
     }
     setLoading(null);
