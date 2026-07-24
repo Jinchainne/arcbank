@@ -4,7 +4,6 @@
 
 # ☕ COFFEE HOUSE
 
-### The Coffee of the World
 
 **Full-stack e-commerce cafe POS · USDC payments on Arc Testnet**
 
