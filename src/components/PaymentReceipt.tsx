@@ -40,12 +40,12 @@ export default function PaymentReceipt({ order, txHash, onClose, onTrack }: Prop
 
       <div className="max-w-md mx-auto px-4 -mt-4 pb-8">
         {/* Invoice Card */}
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-visible">
+        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
 
           {/* Shop Header with Logo */}
-          <div className="p-5 pb-8 border-b border-dashed border-slate-200 relative">
-            <img src="/logo.png" alt="COFFEE HOUSE" className="absolute -top-6 right-3 w-28 h-28 object-contain rounded-xl shadow-lg border-2 border-white z-10" />
-            <div className="text-center pr-28">
+          <div className="p-5 pb-6 border-b border-dashed border-slate-200 relative">
+            <img src="/logo.png" alt="COFFEE HOUSE" className="absolute -top-2 right-3 w-24 h-24 object-contain rounded-xl shadow-md border-2 border-white" />
+            <div className="text-center pr-24">
               <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">COFFEE HOUSE</h2>
               <p className="text-[10px] text-slate-400 uppercase tracking-[0.2em]">The Coffee of the World</p>
               <p className="text-[11px] text-slate-400 mt-1">Pay with USDC on Arc Testnet</p>
