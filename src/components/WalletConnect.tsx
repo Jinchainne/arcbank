@@ -10,7 +10,7 @@ function shortenAddress(addr: string) {
 
 // Wallet logos - real CDN icons
 const WALLET_LOGOS: Record<string, string> = {
-  MetaMask: '/wallets/metamask.jpe',
+  MetaMask: '/wallets/metamask.jpg',
   'Coinbase Wallet': '/wallets/coinbase.png',
   OKX: '/wallets/okx.png',
   Rabby: '/wallets/rabby.png',
