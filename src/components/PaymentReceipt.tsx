@@ -1,5 +1,5 @@
 import { QRCodeSVG } from 'qrcode.react';
-import { Check, ExternalLink, Copy, Coffee } from 'lucide-react';
+import { Check, ExternalLink, Copy } from 'lucide-react';
 import { useState } from 'react';
 import { MERCHANT_ADDRESS } from '../hooks/useShop';
 import type { Order } from '../hooks/useShop';
@@ -42,14 +42,14 @@ export default function PaymentReceipt({ order, txHash, onClose, onTrack }: Prop
         {/* Invoice Card */}
         <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
 
-          {/* Shop Header */}
-          <div className="p-5 border-b border-dashed border-slate-200 text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Coffee className="w-5 h-5 text-slate-700" />
-              <h2 className="text-lg font-extrabold text-slate-900">COFFEE HOUSE</h2>
+          {/* Shop Header with Logo */}
+          <div className="p-5 border-b border-dashed border-slate-200 relative">
+            <img src="/logo.png" alt="COFFEE HOUSE" className="absolute top-3 right-3 w-14 h-14 object-contain rounded-lg opacity-90" />
+            <div className="text-center pr-16">
+              <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">COFFEE HOUSE</h2>
+              <p className="text-[10px] text-slate-400 uppercase tracking-[0.2em]">The Coffee of the World</p>
+              <p className="text-[11px] text-slate-400 mt-1">Pay with USDC on Arc Testnet</p>
             </div>
-            <p className="text-[10px] text-slate-400 uppercase tracking-[0.2em]">The Coffee of the World</p>
-            <p className="text-[11px] text-slate-400 mt-1">Pay with USDC on Arc Testnet</p>
           </div>
 
           {/* Order Info */}
