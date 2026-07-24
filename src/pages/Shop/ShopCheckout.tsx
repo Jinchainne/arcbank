@@ -6,13 +6,14 @@ import { useAgent } from '../../hooks/useAgent';
 import { useSendUSDC, useUSDCBalance } from '../../hooks/useOnChain';
 import { formatCurrency, shortenAddress } from '../../utils/format';
 import WalletConnect from '../../components/WalletConnect';
-import { ArrowLeft, Check, ExternalLink, AlertCircle, Trash2, Plus, Minus, MapPin, Truck, QrCode, X } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Trash2, Plus, Minus, MapPin, Truck, QrCode, X } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
+import PaymentReceipt from '../../components/PaymentReceipt';
 
 export default function ShopCheckout() {
   const { isConnected, address: walletAddress } = useAccount();
   const navigate = useNavigate();
-  const { cart, cartTotal, cartCount, updateQuantity, removeFromCart, clearCart, saveOrder, updateOrderStatus } = useShop();
+  const { cart, cartTotal, cartCount, updateQuantity, removeFromCart, clearCart, saveOrder, updateOrderStatus, orders } = useShop();
   const { balance } = useUSDCBalance();
   const { send, hash, isPending, isConfirming, isSuccess, error: sendError } = useSendUSDC();
   const { processOrder, dispatchDelivery } = useAgent();
@@ -45,13 +46,10 @@ export default function ShopCheckout() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const [orderCode, setOrderCode] = useState('');
-
   const handlePay = () => {
     const id = `ORD-${Date.now().toString(36).toUpperCase()}`;
     const code = generateOrderCode();
     setOrderId(id);
-    setOrderCode(code);
     saveOrder({
       id,
       code,
@@ -300,75 +298,19 @@ export default function ShopCheckout() {
           </div>
         )}
 
-        {/* Step 3: Done */}
-        {step === 'done' && (
-          <div className="space-y-4">
-            <div className="card p-8 text-center border-2 border-emerald-200 bg-emerald-50">
-              <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Check className="w-8 h-8 text-emerald-600" />
-              </div>
-              <h3 className="text-lg font-extrabold text-emerald-900 mb-1">Payment Successful!</h3>
-              <p className="text-sm text-emerald-700 mb-4">
-                {delivery ? 'Your order is being prepared and will be delivered soon.' : 'Your order has been confirmed.'}
-              </p>
-
-              {/* Order Code - PROMINENT */}
-              <div className="bg-white rounded-2xl p-4 mb-4 border-2 border-emerald-300">
-                <p className="text-xs text-emerald-600 font-bold uppercase tracking-wider mb-1">Your Order Code</p>
-                <p className="text-3xl font-extrabold text-emerald-900 font-mono tracking-wider">{orderCode}</p>
-                <p className="text-[11px] text-emerald-500 mt-2">Save this code to track your order</p>
-              </div>
-
-              <div className="space-y-2 text-sm text-left">
-                <div className="flex justify-between">
-                  <span className="text-emerald-600">Order ID</span>
-                  <span className="font-mono font-bold text-emerald-900">{orderId}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-emerald-600">Total Paid</span>
-                  <span className="font-bold text-emerald-900">${grandTotal.toFixed(2)} USDC</span>
-                </div>
-                {delivery && (
-                  <div className="flex justify-between items-start">
-                    <span className="text-emerald-600">Delivering to</span>
-                    <span className="text-emerald-900 text-right max-w-[200px] text-xs">{delivery.address.slice(0, 60)}...</span>
-                  </div>
-                )}
-                {hash && (
-                  <a href={`https://testnet.arcscan.app/tx/${hash}`} target="_blank" rel="noreferrer"
-                    className="flex items-center justify-center gap-1 text-emerald-600 hover:underline mt-3">
-                    View on ArcScan <ExternalLink className="w-3 h-3" />
-                  </a>
-                )}
-              </div>
-
-              {delivery && (
-                <div className="mt-6 pt-4 border-t border-emerald-200">
-                  <p className="text-xs font-bold text-emerald-700 mb-3 uppercase tracking-wider">Delivery Status</p>
-                  <div className="flex items-center justify-between px-2">
-                    {['Confirmed', 'Preparing', 'Shipping', 'Delivered'].map((label, i) => {
-                      const statusMap: Record<string, number> = { confirmed: 0, preparing: 1, shipping: 2, delivered: 3 };
-                      const current = statusMap['confirmed'] || 0;
-                      const active = i <= current;
-                      return (
-                        <div key={label} className="flex flex-col items-center">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${active ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-400'}`}>
-                            {active ? <Check className="w-4 h-4" /> : i + 1}
-                          </div>
-                          <span className={`text-[10px] mt-1 ${active ? 'text-emerald-700 font-bold' : 'text-slate-400'}`}>{label}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <button onClick={() => navigate('/shop/track')} className="btn-primary w-full">Track Order</button>
-            <button onClick={() => navigate('/shop')} className="btn-secondary w-full">Order Again</button>
-            <button onClick={() => navigate('/shop/orders')} className="btn-secondary w-full">View All Orders</button>
-          </div>
-        )}
+        {/* Step 3: Done - Receipt */}
+        {step === 'done' && (() => {
+          const completedOrder = orders.find(o => o.id === orderId);
+          if (!completedOrder) return null;
+          return (
+            <PaymentReceipt
+              order={completedOrder}
+              txHash={hash || undefined}
+              onTrack={() => navigate('/shop/track')}
+              onClose={() => navigate('/shop')}
+            />
+          );
+        })()}
 
         {/* QR Code Modal */}
         {showQR && (

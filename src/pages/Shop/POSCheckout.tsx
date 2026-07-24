@@ -7,7 +7,8 @@ import { useSendUSDC, useUSDCBalance } from '../../hooks/useOnChain';
 import { formatCurrency } from '../../utils/format';
 import WalletConnect from '../../components/WalletConnect';
 import { QRCodeSVG } from 'qrcode.react';
-import { Check, MapPin, Truck, ArrowLeft, QrCode, Loader2, AlertCircle, ExternalLink, Wallet } from 'lucide-react';
+import { Check, MapPin, Truck, ArrowLeft, QrCode, Loader2, AlertCircle, Wallet } from 'lucide-react';
+import PaymentReceipt from '../../components/PaymentReceipt';
 // Poll merchant USDC balance via RPC
 async function fetchUSDCBalance(address: string): Promise<number> {
   try {
@@ -38,7 +39,7 @@ type PaymentStatus = 'waiting' | 'detecting' | 'confirmed' | 'timeout';
 export default function POSCheckout() {
   const navigate = useNavigate();
   const { isConnected, address: walletAddress } = useAccount();
-  const { cart, cartTotal, cartCount, clearCart, saveOrder, updateOrderStatus } = useShop();
+  const { cart, cartTotal, cartCount, clearCart, saveOrder, updateOrderStatus, orders } = useShop();
   const { processOrder, dispatchDelivery } = useAgent();
   const { send, hash, isSuccess, error: sendError } = useSendUSDC();
   const { balance } = useUSDCBalance();
@@ -412,66 +413,19 @@ export default function POSCheckout() {
           </div>
         )}
 
-        {/* Step 3: Done */}
-        {step === 'done' && (
-          <div className="space-y-4">
-            <div className="card p-8 text-center border-2 border-emerald-200 bg-emerald-50">
-              <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Check className="w-10 h-10 text-emerald-600" />
-              </div>
-              <h2 className="text-2xl font-extrabold text-emerald-900 mb-2">Payment Successful!</h2>
-              <p className="text-sm text-emerald-700 mb-6">
-                {delivery ? 'Your order is being prepared for delivery.' : 'Your order has been confirmed.'}
-              </p>
-
-              {/* Order Code */}
-              <div className="bg-white rounded-2xl p-5 mb-4 border-2 border-emerald-300">
-                <p className="text-xs text-emerald-600 font-bold uppercase tracking-wider mb-2">Order Code</p>
-                <p className="text-4xl font-extrabold text-emerald-900 font-mono tracking-wider">{orderCode}</p>
-                <p className="text-[11px] text-emerald-500 mt-2">Save this code to track your order</p>
-              </div>
-
-              <div className="space-y-2 text-sm text-left">
-                <div className="flex justify-between">
-                  <span className="text-emerald-600">Total Paid</span>
-                  <span className="font-bold text-emerald-900">${grandTotal.toFixed(2)} USDC</span>
-                </div>
-                {delivery && (
-                  <div className="flex justify-between items-start">
-                    <span className="text-emerald-600">Delivering to</span>
-                    <span className="text-emerald-900 text-right max-w-[200px] text-xs">{delivery.address.slice(0, 50)}...</span>
-                  </div>
-                )}
-                {txHash && (
-                  <a href={`https://testnet.arcscan.app/tx/${txHash}`} target="_blank" rel="noreferrer"
-                    className="flex items-center justify-center gap-1 text-emerald-600 hover:underline mt-3">
-                    View on ArcScan <ExternalLink className="w-3 h-3" />
-                  </a>
-                )}
-              </div>
-
-              {/* Delivery Progress */}
-              {delivery && (
-                <div className="mt-6 pt-4 border-t border-emerald-200">
-                  <p className="text-xs font-bold text-emerald-700 mb-3 uppercase tracking-wider">Delivery Status</p>
-                  <div className="flex items-center justify-between px-2">
-                    {['Confirmed', 'Preparing', 'On the Way', 'Delivered'].map((label, i) => (
-                      <div key={label} className="flex flex-col items-center">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${i === 0 ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-400'}`}>
-                          {i === 0 ? <Check className="w-4 h-4" /> : i + 1}
-                        </div>
-                        <span className={`text-[10px] mt-1 ${i === 0 ? 'text-emerald-700 font-bold' : 'text-slate-400'}`}>{label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <button onClick={() => navigate('/shop/track')} className="btn-primary w-full">Track Order</button>
-            <button onClick={() => navigate('/shop')} className="btn-secondary w-full">New Order</button>
-          </div>
-        )}
+        {/* Step 3: Done - Receipt */}
+        {step === 'done' && (() => {
+          const completedOrder = orders.find(o => o.id === orderIdRef.current);
+          if (!completedOrder) return null;
+          return (
+            <PaymentReceipt
+              order={completedOrder}
+              txHash={txHash || hash || undefined}
+              onTrack={() => navigate('/shop/track')}
+              onClose={() => navigate('/shop')}
+            />
+          );
+        })()}
       </div>
     </div>
   );

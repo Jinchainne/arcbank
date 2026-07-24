@@ -1,10 +1,15 @@
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useShop } from '../../hooks/useShop';
-import { ExternalLink, Clock, Check, X, ShoppingBag, Coffee, MapPin, Truck, Package, ChefHat } from 'lucide-react';
+import { ExternalLink, Clock, Check, X, ShoppingBag, Coffee, MapPin, Truck, Package, ChefHat, Receipt } from 'lucide-react';
+import PaymentReceipt from '../../components/PaymentReceipt';
 
 export default function ShopOrders() {
   const navigate = useNavigate();
   const { orders } = useShop();
+  const [viewReceipt, setViewReceipt] = useState<string | null>(null);
+
+  const receiptOrder = viewReceipt ? orders.find(o => o.id === viewReceipt) : null;
 
   const statusConfig: Record<string, { icon: any; color: string; bg: string; label: string }> = {
     confirmed: { icon: Check, color: 'text-emerald-500', bg: 'bg-emerald-50 border-emerald-200', label: 'Confirmed' },
@@ -97,7 +102,13 @@ export default function ShopOrders() {
                     <span className="text-xs text-slate-400">
                       {new Date(order.timestamp).toLocaleString()}
                     </span>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      {order.status === 'confirmed' || order.status === 'preparing' || order.status === 'shipping' || order.status === 'delivered' ? (
+                        <button onClick={() => setViewReceipt(order.id)}
+                          className="flex items-center gap-1 text-[10px] font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-1 rounded-lg border border-blue-200">
+                          <Receipt className="w-3 h-3" /> Receipt
+                        </button>
+                      ) : null}
                       <div className="text-right">
                         <span className="text-sm font-extrabold text-slate-900">${order.total.toFixed(2)} USDC</span>
                         {order.shippingFee > 0 && (
@@ -118,6 +129,23 @@ export default function ShopOrders() {
           </div>
         )}
       </div>
+
+      {/* Receipt Overlay */}
+      {receiptOrder && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-50">
+          <PaymentReceipt
+            order={receiptOrder}
+            txHash={receiptOrder.txHash}
+            onClose={() => setViewReceipt(null)}
+          />
+          <div className="max-w-md mx-auto px-4 pb-8 -mt-4">
+            <button onClick={() => setViewReceipt(null)}
+              className="w-full bg-white text-slate-700 font-semibold text-sm py-3 rounded-xl border border-slate-200 hover:bg-slate-50">
+              ← Back to Orders
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
