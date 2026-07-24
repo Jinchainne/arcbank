@@ -15,8 +15,12 @@ import OrderTracking from './pages/Shop/OrderTracking';
 import DeliveryPage from './pages/Shop/DeliveryPage';
 import POSCheckout from './pages/Shop/POSCheckout';
 import ShopFeedback from './pages/Shop/ShopFeedback';
+import CustomerProfile from './pages/Shop/CustomerProfile';
+import KitchenView from './pages/Shop/KitchenView';
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
+import RevenueReport from './pages/Admin/RevenueReport';
+import { CustomerProvider } from './hooks/useCustomer';
 
 
 const queryClient = new QueryClient();
@@ -31,6 +35,7 @@ export default function App() {
             <AdminProvider>
               <AgentProvider>
                 <SocialProvider>
+                <CustomerProvider>
                 <Routes>
                   <Route path="/" element={<Layout />}>
                     <Route index element={<Navigate to="/shop" replace />} />
@@ -41,11 +46,15 @@ export default function App() {
                     <Route path="shop/orders" element={<ShopOrders />} />
                     <Route path="shop/track" element={<OrderTracking />} />
                     <Route path="shop/feedback" element={<ShopFeedback />} />
+                    <Route path="shop/profile" element={<CustomerProfile />} />
+                    <Route path="shop/kitchen" element={<KitchenView />} />
                   </Route>
                   <Route path="/admin" element={<AdminLogin />} />
                   <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                  <Route path="/admin/revenue" element={<RevenueReport />} />
 
                 </Routes>
+                </CustomerProvider>
                 </SocialProvider>
               </AgentProvider>
             </AdminProvider>

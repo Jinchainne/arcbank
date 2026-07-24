@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
-import { Bell, Coffee, Menu, X, ClipboardList, Shield, MapPin, ShoppingCart, MessageSquare } from 'lucide-react';
+import { Bell, Coffee, Menu, X, ClipboardList, Shield, MapPin, ShoppingCart, MessageSquare, User, ChefHat } from 'lucide-react';
 import WalletConnect from './WalletConnect';
 import { useShop } from '../hooks/useShop';
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +18,8 @@ export default function Navbar() {
     { label: t('nav.orders'), path: '/shop/orders', icon: ClipboardList },
     { label: t('nav.track'), path: '/shop/track', icon: MapPin },
     { label: t('nav.feedback'), path: '/shop/feedback', icon: MessageSquare },
+    { label: 'Kitchen', path: '/shop/kitchen', icon: ChefHat },
+    { label: 'Profile', path: '/shop/profile', icon: User },
     { label: t('nav.admin'), path: '/admin', icon: Shield },
   ];
 
