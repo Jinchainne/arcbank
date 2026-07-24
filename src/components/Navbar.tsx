@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
-import { Bell, Coffee, Menu, X, ClipboardList, Shield, MapPin, ShoppingCart, MessageSquare, Globe } from 'lucide-react';
+import { Bell, Coffee, Menu, X, ClipboardList, Shield, MapPin, ShoppingCart, MessageSquare } from 'lucide-react';
 import WalletConnect from './WalletConnect';
 import { useShop } from '../hooks/useShop';
 import { useNavigate } from 'react-router-dom';
@@ -59,18 +59,18 @@ export default function Navbar() {
             {/* Language Dropdown */}
             <div className="relative">
               <button onClick={() => setShowLang(!showLang)}
-                className="flex items-center gap-1 px-2 py-1 text-[10px] font-bold text-slate-500 hover:text-amber-700 hover:bg-amber-50 rounded-md border border-slate-200 transition-colors">
-                <Globe className="w-3 h-3" />
+                className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold text-slate-500 hover:text-amber-700 hover:bg-amber-50 rounded-md border border-slate-200 transition-colors">
+                <img src={LANGUAGES.find(l => l.code === lang)?.flag} alt="" className="w-4 h-3 rounded-sm object-cover" />
                 {LANGUAGES.find(l => l.code === lang)?.label || 'EN'}
               </button>
               {showLang && (
-                <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-50 w-44 max-h-72 overflow-y-auto">
+                <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-50 w-48 max-h-72 overflow-y-auto">
                   {LANGUAGES.map(l => (
                     <button key={l.code} onClick={() => { setLang(l.code); setShowLang(false); }}
-                      className={`w-full text-left px-3 py-1.5 text-xs flex items-center gap-2 hover:bg-amber-50 transition-colors ${
+                      className={`w-full text-left px-3 py-2 text-xs flex items-center gap-2.5 hover:bg-amber-50 transition-colors ${
                         lang === l.code ? 'bg-amber-50 text-amber-700 font-bold' : 'text-slate-600'
                       }`}>
-                      <span className="text-sm">{l.flag}</span>
+                      <img src={l.flag} alt={l.name} className="w-5 h-3.5 rounded-sm object-cover shadow-sm" />
                       <span>{l.name}</span>
                       {lang === l.code && <span className="ml-auto text-amber-600">✓</span>}
                     </button>

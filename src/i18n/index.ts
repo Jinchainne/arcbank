@@ -1,21 +1,21 @@
 import { useState, useCallback, useEffect } from 'react';
 
 export const LANGUAGES = [
-  { code: 'en', label: 'EN', name: 'English', flag: '🇺🇸' },
-  { code: 'vi', label: 'VI', name: 'Tiếng Việt', flag: '🇻🇳' },
-  { code: 'zh', label: '中文', name: '中文', flag: '🇨🇳' },
-  { code: 'ja', label: '日本', name: '日本語', flag: '🇯🇵' },
-  { code: 'ko', label: '한국', name: '한국어', flag: '🇰🇷' },
-  { code: 'th', label: 'TH', name: 'ภาษาไทย', flag: '🇹🇭' },
-  { code: 'id', label: 'ID', name: 'Bahasa Indonesia', flag: '🇮🇩' },
-  { code: 'es', label: 'ES', name: 'Español', flag: '🇪🇸' },
-  { code: 'fr', label: 'FR', name: 'Français', flag: '🇫🇷' },
-  { code: 'pt', label: 'PT', name: 'Português', flag: '🇧🇷' },
-  { code: 'ar', label: 'AR', name: 'العربية', flag: '🇸🇦' },
-  { code: 'hi', label: 'HI', name: 'हिन्दी', flag: '🇮🇳' },
-  { code: 'de', label: 'DE', name: 'Deutsch', flag: '🇩🇪' },
-  { code: 'ru', label: 'RU', name: 'Русский', flag: '🇷🇺' },
-  { code: 'ms', label: 'MS', name: 'Bahasa Melayu', flag: '🇲🇾' },
+  { code: 'en', label: 'EN', name: 'English', flag: 'https://flagcdn.com/w40/us.png' },
+  { code: 'vi', label: 'VI', name: 'Tiếng Việt', flag: 'https://flagcdn.com/w40/vn.png' },
+  { code: 'zh', label: '中文', name: '中文', flag: 'https://flagcdn.com/w40/cn.png' },
+  { code: 'ja', label: '日本', name: '日本語', flag: 'https://flagcdn.com/w40/jp.png' },
+  { code: 'ko', label: '한국', name: '한국어', flag: 'https://flagcdn.com/w40/kr.png' },
+  { code: 'th', label: 'TH', name: 'ภาษาไทย', flag: 'https://flagcdn.com/w40/th.png' },
+  { code: 'id', label: 'ID', name: 'Bahasa Indonesia', flag: 'https://flagcdn.com/w40/id.png' },
+  { code: 'es', label: 'ES', name: 'Español', flag: 'https://flagcdn.com/w40/es.png' },
+  { code: 'fr', label: 'FR', name: 'Français', flag: 'https://flagcdn.com/w40/fr.png' },
+  { code: 'pt', label: 'PT', name: 'Português', flag: 'https://flagcdn.com/w40/br.png' },
+  { code: 'ar', label: 'AR', name: 'العربية', flag: 'https://flagcdn.com/w40/sa.png' },
+  { code: 'hi', label: 'HI', name: 'हिन्दी', flag: 'https://flagcdn.com/w40/in.png' },
+  { code: 'de', label: 'DE', name: 'Deutsch', flag: 'https://flagcdn.com/w40/de.png' },
+  { code: 'ru', label: 'RU', name: 'Русский', flag: 'https://flagcdn.com/w40/ru.png' },
+  { code: 'ms', label: 'MS', name: 'Bahasa Melayu', flag: 'https://flagcdn.com/w40/my.png' },
 ] as const;
 
 export type LangCode = (typeof LANGUAGES)[number]['code'];
