@@ -40,11 +40,11 @@ export default function PaymentReceipt({ order, txHash, onClose, onTrack }: Prop
 
       <div className="max-w-md mx-auto px-4 -mt-4 pb-8">
         {/* Invoice Card */}
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-visible">
 
           {/* Shop Header with Logo */}
-          <div className="p-5 border-b border-dashed border-slate-200 relative">
-            <img src="/logo.png" alt="COFFEE HOUSE" className="absolute top-3 right-3 w-28 h-28 object-contain rounded-xl opacity-90" />
+          <div className="p-5 pb-8 border-b border-dashed border-slate-200 relative">
+            <img src="/logo.png" alt="COFFEE HOUSE" className="absolute -top-6 right-3 w-28 h-28 object-contain rounded-xl shadow-lg border-2 border-white z-10" />
             <div className="text-center pr-28">
               <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">COFFEE HOUSE</h2>
               <p className="text-[10px] text-slate-400 uppercase tracking-[0.2em]">The Coffee of the World</p>
