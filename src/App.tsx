@@ -14,6 +14,7 @@ import ShopOrders from './pages/Shop/ShopOrders';
 import OrderTracking from './pages/Shop/OrderTracking';
 import DeliveryPage from './pages/Shop/DeliveryPage';
 import POSCheckout from './pages/Shop/POSCheckout';
+import ShopFeedback from './pages/Shop/ShopFeedback';
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 
@@ -39,6 +40,7 @@ export default function App() {
                     <Route path="shop/wallet-checkout" element={<ShopCheckout />} />
                     <Route path="shop/orders" element={<ShopOrders />} />
                     <Route path="shop/track" element={<OrderTracking />} />
+                    <Route path="shop/feedback" element={<ShopFeedback />} />
                   </Route>
                   <Route path="/admin" element={<AdminLogin />} />
                   <Route path="/admin/dashboard" element={<AdminDashboard />} />

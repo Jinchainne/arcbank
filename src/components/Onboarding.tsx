@@ -41,7 +41,7 @@ export default function Onboarding() {
                 <AlertCircle className="w-6 h-6 text-amber-600" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900">Get Started with Global Payments</h3>
+                <h3 className="text-base font-bold text-slate-900">Get Started with COFFEE HOUSE</h3>
                 <p className="text-xs text-slate-500">Follow these steps to use real USDC on Arc Testnet</p>
               </div>
             </div>

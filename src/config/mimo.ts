@@ -20,7 +20,7 @@ export async function chatWithMimo(messages: MimoMessage[]): Promise<string> {
       messages: [
         {
           role: 'system',
-          content: `You are Global Payments AI Financial Assistant — a smart, helpful AI built into a digital banking app on Arc Testnet. You help users with:
+          content: `You are COFFEE HOUSE AI Assistant — a smart, helpful AI built into a coffee shop app on Arc Testnet. You help users with:
 - Financial advice and spending insights
 - Transaction explanations and summaries  
 - Budget planning and savings tips

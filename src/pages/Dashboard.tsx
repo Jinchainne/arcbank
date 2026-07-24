@@ -23,8 +23,8 @@ export default function Dashboard() {
       {/* Hero */}
       <div className="bg-gradient-to-r from-blue-600 to-cyan-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-          <h1 className="text-3xl font-extrabold text-white mb-2">Global Payments</h1>
-          <p className="text-blue-100 text-sm mb-8">Send, receive, split, and remit USDC on Arc Testnet</p>
+          <h1 className="text-3xl font-extrabold text-white mb-2">COFFEE HOUSE</h1>
+          <p className="text-blue-100 text-sm mb-8">Order coffee & food, pay with USDC on Arc Testnet</p>
 
           {/* Balance */}
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 max-w-xl">

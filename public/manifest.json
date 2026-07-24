@@ -1,7 +1,7 @@
 {
-  "name": "Global Payments - Digital Banking on Arc",
-  "short_name": "Global Payments",
-  "description": "Digital banking on stablecoin rails. Send, receive, split bills, and remit USDC on Arc Testnet.",
+  "name": "COFFEE HOUSE — The Coffee of the World",
+  "short_name": "COFFEE HOUSE",
+  "description": "Premium coffee shop. Order and pay with USDC on Arc Testnet.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f0f4f8",
@@ -9,7 +9,7 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232563eb'/><text x='50' y='68' text-anchor='middle' font-size='50' font-family='Arial' font-weight='bold' fill='white'>A</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231e293b'/><text x='50' y='68' text-anchor='middle' font-size='48'>☕</text></svg>",
       "sizes": "any",
       "type": "image/svg+xml"
     }
