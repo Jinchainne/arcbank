@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAdmin, EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../../hooks/useAdmin';
 import { useShop, getShippingConfig, saveShippingConfig, type ShippingConfig } from '../../hooks/useShop';
 import { usePOSConfig } from '../../hooks/usePOSConfig';
+import MarketTrends from './MarketTrends';
 import { formatCurrency } from '../../utils/format';
 import {
   LayoutDashboard, ShoppingCart, Receipt, Calculator, LogOut, Plus, Trash2,
@@ -11,8 +12,9 @@ import {
 } from 'lucide-react';
 
 import { AdminAgentPanel } from './AgentDashboard';
+import CustomerInsights from './CustomerInsights';
 
-type Tab = 'dashboard' | 'orders' | 'finance' | 'tax' | 'products' | 'ai-agent' | 'shipping' | 'pos-config' | 'backup';
+type Tab = 'dashboard' | 'orders' | 'finance' | 'tax' | 'products' | 'ai-agent' | 'customer-insights' | 'market-trends' | 'shipping' | 'pos-config' | 'backup';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -52,6 +54,8 @@ export default function AdminDashboard() {
     { id: 'tax' as Tab, label: 'Tax', icon: Calculator },
     { id: 'products' as Tab, label: 'Products', icon: Package },
     { id: 'ai-agent' as Tab, label: 'AI Agent', icon: Brain },
+    { id: 'customer-insights' as Tab, label: 'Customer Insights', icon: Brain },
+    { id: 'market-trends' as Tab, label: 'Market Trends', icon: TrendingUp },
     { id: 'shipping' as Tab, label: 'Shipping', icon: Settings },
     { id: 'pos-config' as Tab, label: 'POS Terminal', icon: Settings },
     { id: 'backup' as Tab, label: 'Backup', icon: HardDrive },
@@ -298,6 +302,12 @@ export default function AdminDashboard() {
 
         {/* ═══════ AI AGENT ═══════ */}
         {tab === 'ai-agent' && <AdminAgentPanel />}
+
+        {/* ═══════ CUSTOMER INSIGHTS ═══════ */}
+        {tab === 'customer-insights' && <CustomerInsights />}
+
+        {/* ═══════ MARKET TRENDS ═══════ */}
+        {tab === 'market-trends' && <MarketTrends />}
 
         {/* ═══════ SHIPPING SETTINGS ═══════ */}
         {tab === 'shipping' && <ShippingSettingsTab />}
