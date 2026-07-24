@@ -60,7 +60,7 @@ export async function testConnection(
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
 
-    const response = await fetch(terminalUrl, {
+    await fetch(terminalUrl, {
       method: 'HEAD',
       mode: 'no-cors',
       signal: controller.signal,

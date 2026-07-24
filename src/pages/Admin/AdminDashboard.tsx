@@ -2,16 +2,17 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin, EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../../hooks/useAdmin';
 import { useShop, getShippingConfig, saveShippingConfig, type ShippingConfig } from '../../hooks/useShop';
+import { usePOSConfig } from '../../hooks/usePOSConfig';
 import { formatCurrency } from '../../utils/format';
 import {
   LayoutDashboard, ShoppingCart, Receipt, Calculator, LogOut, Plus, Trash2,
   TrendingUp, TrendingDown, DollarSign, Package, ChefHat, Truck, Clock, Check, X, ExternalLink, MapPin,
-  Download, Upload, HardDrive, Brain, Settings
+  Download, Upload, HardDrive, Brain, Settings, Loader2
 } from 'lucide-react';
 
 import { AdminAgentPanel } from './AgentDashboard';
 
-type Tab = 'dashboard' | 'orders' | 'finance' | 'tax' | 'products' | 'ai-agent' | 'shipping' | 'backup';
+type Tab = 'dashboard' | 'orders' | 'finance' | 'tax' | 'products' | 'ai-agent' | 'shipping' | 'pos-config' | 'backup';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -52,6 +53,7 @@ export default function AdminDashboard() {
     { id: 'products' as Tab, label: 'Products', icon: Package },
     { id: 'ai-agent' as Tab, label: 'AI Agent', icon: Brain },
     { id: 'shipping' as Tab, label: 'Shipping', icon: Settings },
+    { id: 'pos-config' as Tab, label: 'POS Terminal', icon: Settings },
     { id: 'backup' as Tab, label: 'Backup', icon: HardDrive },
   ];
 
@@ -299,6 +301,9 @@ export default function AdminDashboard() {
 
         {/* ═══════ SHIPPING SETTINGS ═══════ */}
         {tab === 'shipping' && <ShippingSettingsTab />}
+
+        {/* ═══════ POS TERMINAL ═══════ */}
+        {tab === 'pos-config' && <POSConfigTab />}
 
         {/* ═══════ BACKUP ═══════ */}
         {tab === 'backup' && <BackupTab products={products} orders={orders} />}
@@ -747,6 +752,183 @@ function PublishButton({ products }: { products: any[] }) {
           {result}
         </div>
       )}
+    </div>
+  );
+}
+
+// ═══════ POS TERMINAL CONFIG TAB ═══════
+function POSConfigTab() {
+  const { config, updateConfig, logs, clearLogs, testing, testResult, runTest } = usePOSConfig();
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = () => {
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-extrabold text-slate-900">POS Terminal Configuration</h2>
+          <p className="text-sm text-slate-500">Connect your POS machine to receive payment notifications</p>
+        </div>
+        {saved && (
+          <span className="text-sm font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg">✓ Saved!</span>
+        )}
+      </div>
+
+      {/* Connection Status */}
+      <div className={`card p-5 border-2 ${config.enabled ? 'border-emerald-200 bg-emerald-50' : 'border-slate-200'}`}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${config.enabled ? 'bg-emerald-500' : 'bg-slate-300'}`}>
+              <Settings className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-slate-900">POS Terminal</p>
+              <p className={`text-xs ${config.enabled ? 'text-emerald-600' : 'text-slate-400'}`}>
+                {config.enabled ? 'Active — monitoring for payments' : 'Disabled'}
+              </p>
+            </div>
+          </div>
+          <button onClick={() => updateConfig({ enabled: !config.enabled })}
+            className={`relative w-12 h-6 rounded-full transition-colors ${config.enabled ? 'bg-emerald-500' : 'bg-slate-300'}`}>
+            <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${config.enabled ? 'translate-x-6' : 'translate-x-0.5'}`} />
+          </button>
+        </div>
+      </div>
+
+      {/* Configuration Fields */}
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="card p-5">
+          <label className="block text-xs font-bold text-slate-500 mb-2">Terminal URL / IP Address</label>
+          <input value={config.terminalUrl} onChange={e => updateConfig({ terminalUrl: e.target.value })}
+            placeholder="http://192.168.1.100:8080" className="w-full text-sm mb-3" />
+          <p className="text-[10px] text-slate-400">IP address or URL of your POS terminal on local network</p>
+        </div>
+        <div className="card p-5">
+          <label className="block text-xs font-bold text-slate-500 mb-2">Merchant ID</label>
+          <input value={config.merchantId} onChange={e => updateConfig({ merchantId: e.target.value })}
+            placeholder="MERCHANT_001" className="w-full text-sm mb-3" />
+          <p className="text-[10px] text-slate-400">Your merchant identifier on the POS system</p>
+        </div>
+        <div className="card p-5">
+          <label className="block text-xs font-bold text-slate-500 mb-2">API Key</label>
+          <input type="password" value={config.apiKey} onChange={e => updateConfig({ apiKey: e.target.value })}
+            placeholder="sk_live_xxxxx" className="w-full text-sm mb-3" />
+          <p className="text-[10px] text-slate-400">Authentication key for POS API</p>
+        </div>
+        <div className="card p-5">
+          <label className="block text-xs font-bold text-slate-500 mb-2">Webhook URL (Payment Callback)</label>
+          <input value={config.webhookUrl} onChange={e => updateConfig({ webhookUrl: e.target.value })}
+            placeholder="https://your-domain.com/api/pos-webhook" className="w-full text-sm mb-3" />
+          <p className="text-[10px] text-slate-400">URL the POS will call when payment is received</p>
+        </div>
+      </div>
+
+      {/* Advanced Settings */}
+      <div className="card p-5">
+        <h3 className="text-sm font-bold text-slate-900 mb-4">Advanced Settings</h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-500 mb-2">Poll Interval (seconds)</label>
+            <div className="flex items-center gap-2">
+              <input type="number" min={5} max={60} value={config.pollIntervalSec}
+                onChange={e => updateConfig({ pollIntervalSec: parseInt(e.target.value) || 10 })}
+                className="w-24 text-center font-bold" />
+              <span className="text-xs text-slate-400">How often to check for new payments</span>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-500 mb-2">Auto-Confirm Orders</label>
+            <div className="flex items-center gap-3">
+              <button onClick={() => updateConfig({ autoConfirm: !config.autoConfirm })}
+                className={`relative w-10 h-5 rounded-full transition-colors ${config.autoConfirm ? 'bg-blue-500' : 'bg-slate-300'}`}>
+                <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${config.autoConfirm ? 'translate-x-5' : 'translate-x-0.5'}`} />
+              </button>
+              <span className="text-xs text-slate-500">{config.autoConfirm ? 'ON — auto-confirm when POS reports payment' : 'OFF — manual confirmation required'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Test Connection */}
+      <div className="card p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold text-slate-900">Test Connection</h3>
+          <button onClick={runTest} disabled={testing || !config.terminalUrl}
+            className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5">
+            {testing ? (
+              <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Testing...</>
+            ) : (
+              <><Settings className="w-3.5 h-3.5" /> Test Now</>
+            )}
+          </button>
+        </div>
+        {testResult && (
+          <div className={`p-3 rounded-xl text-sm font-medium ${testResult.success ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+            {testResult.success ? '✅' : '❌'} {testResult.message}
+          </div>
+        )}
+        {!config.terminalUrl && (
+          <p className="text-xs text-slate-400">Enter a terminal URL above to test the connection</p>
+        )}
+      </div>
+
+      {/* POS API Format */}
+      <div className="card p-5 bg-slate-50 border-dashed">
+        <h3 className="text-sm font-bold text-slate-900 mb-3">POS Integration Guide</h3>
+        <div className="space-y-2 text-xs text-slate-600">
+          <p><strong>Payment Notification Endpoint:</strong> <code className="bg-slate-200 px-1.5 py-0.5 rounded">POST {config.webhookUrl || 'YOUR_WEBHOOK_URL'}</code></p>
+          <p><strong>Expected Payload:</strong></p>
+          <pre className="bg-slate-900 text-green-400 p-3 rounded-lg text-[11px] overflow-x-auto">{`{
+  "event": "payment_received",
+  "amount": 11.61,
+  "currency": "USDC",
+  "merchant_id": "${config.merchantId || 'MERCHANT_ID'}",
+  "tx_hash": "0xabc123...",
+  "customer_wallet": "0x...",
+  "timestamp": ${Date.now()},
+  "status": "confirmed"
+}`}</pre>
+          <p className="text-[10px] text-slate-400 mt-2">Configure your POS to send a POST request to the webhook URL above when a payment is received.</p>
+        </div>
+      </div>
+
+      {/* Action */}
+      <button onClick={handleSave} className="w-full bg-slate-900 text-white font-bold text-sm py-3 rounded-xl hover:bg-amber-700 transition-colors">
+        Save POS Configuration
+      </button>
+
+      {/* Logs */}
+      <div className="card p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold text-slate-900">POS Activity Log ({logs.length})</h3>
+          {logs.length > 0 && (
+            <button onClick={clearLogs} className="text-xs text-red-500 hover:text-red-700">Clear All</button>
+          )}
+        </div>
+        {logs.length === 0 ? (
+          <p className="text-sm text-slate-400 text-center py-6">No POS activity yet</p>
+        ) : (
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {logs.slice(0, 50).map(log => (
+              <div key={log.id} className="flex items-start gap-2 p-2 bg-slate-50 rounded-lg">
+                <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${log.type === 'payment_received' ? 'bg-emerald-500' : log.type === 'error' ? 'bg-red-500' : 'bg-blue-500'}`} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-slate-800">{log.message}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[10px] text-slate-400">{new Date(log.timestamp).toLocaleString()}</span>
+                    {log.amount && <span className="text-[10px] font-bold text-emerald-600">${log.amount.toFixed(2)}</span>}
+                    {log.txHash && <span className="text-[10px] font-mono text-slate-400">{log.txHash.slice(0, 16)}...</span>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
