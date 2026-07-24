@@ -85,7 +85,7 @@ export default function ShopFeedback() {
             <div className="mb-4">
               <label className="block text-xs font-semibold text-slate-600 mb-1.5">Select Product</label>
               <select value={selectedProduct} onChange={e => setSelectedProduct(e.target.value)}
-                className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none">
+                className="w-full h-12 px-4 rounded-lg border border-slate-200 text-sm font-medium bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none">
                 <option value="">-- Choose a product --</option>
                 {products.map(p => (
                   <option key={p.id} value={p.id}>{p.name} (${p.price.toFixed(2)})</option>
@@ -137,10 +137,10 @@ export default function ShopFeedback() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input value={search} onChange={e => setSearch(e.target.value)}
                   placeholder="Search products..."
-                  className="w-full h-9 pl-9 pr-3 rounded-lg border border-slate-200 text-sm focus:border-amber-400 outline-none" />
+                  className="w-full h-12 pl-9 pr-3 rounded-lg border border-slate-200 text-sm focus:border-amber-400 outline-none" />
               </div>
               <select value={filterProduct} onChange={e => setFilterProduct(e.target.value)}
-                className="h-9 px-3 w-auto min-w-[150px] rounded-lg border border-slate-200 text-sm bg-white focus:border-amber-400 outline-none">
+                className="h-12 px-4 w-auto min-w-[160px] rounded-lg border border-slate-200 text-sm font-medium bg-white focus:border-amber-400 outline-none">
                 <option value="all">All Products</option>
                 {products.map(p => (
                   <option key={p.id} value={p.id}>{p.name}</option>
